@@ -94,7 +94,7 @@ if ($_POST)
     if(isset($_POST['responseFingerprintOrder']) && isset($_POST['responseFingerprint']))
     {
         $responseFingerprintOrder = explode(',', $_POST['responseFingerprintOrder']);
-        $responseFingerprintSeed  = '';
+        $tempArray  = [];
         $c = strtoupper($_POST['paymentCode']);
 
         switch(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE) {
@@ -110,29 +110,26 @@ if ($_POST)
                 break;
         }
 
-        if(get_magic_quotes_gpc() || get_magic_quotes_runtime())
-        {
-            $stipslashes = true;
-        }
-        else
-        {
-            $stipslashes = false;
-        }
 
         //calculating fingerprint;
         foreach($responseFingerprintOrder as $k)
         {
-            if($stipslashes)
+            if (strcmp((string)$k, 'secret') == 0)
             {
-                $responseFingerprintSeed .= (strtoupper($k) == 'SECRET' ? $preshared_key : stripslashes($_POST[$k]));
-            }
-            else
-            {
-                $responseFingerprintSeed .= (strtoupper($k) == 'SECRET' ? $preshared_key : $_POST[$k]);
+                $tempArray[(string)$key] = $preshared_key;
+            } else {
+                $tempArray[(string)$key] = (string)$_POST[$key];
             }
         }
 
-        $calculated_fingerprint = md5($responseFingerprintSeed);
+        $hash = hash_init('sha512', HASH_HMAC, $preshared_key);
+
+        foreach ($tempArray as $key => $value) {
+            hash_update($hash, $value);
+        }
+
+        $calculated_fingerprint = hash_final($hash);
+
         if($calculated_fingerprint == $_POST['responseFingerprint'])
         {
             debug_msg('Fingerprint is OK');
