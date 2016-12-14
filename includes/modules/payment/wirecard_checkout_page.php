@@ -343,7 +343,7 @@ class wirecard_checkout_page {
         foreach($postData AS $parameterName => $parameterValue)
         {
             $requestFingerprintOrder .= ','.$parameterName;
-            $tempArray[(string)$parameterName] .= (string)$parameterValue;
+            $tempArray[(string)$parameterName] = (string)$parameterValue;
         }
 		
         $requestFingerprintOrder .= ',requestFingerprintOrder';

@@ -94,7 +94,7 @@ if ($_POST)
     if(isset($_POST['responseFingerprintOrder']) && isset($_POST['responseFingerprint']))
     {
         $responseFingerprintOrder = explode(',', $_POST['responseFingerprintOrder']);
-        $tempArray  = [];
+        $tempArray  = array();
         $c = strtoupper($_POST['paymentCode']);
 
         switch(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE) {
@@ -110,15 +110,14 @@ if ($_POST)
                 break;
         }
 
-
         //calculating fingerprint;
         foreach($responseFingerprintOrder as $k)
         {
-            if (strcmp((string)$k, 'secret') == 0)
+            if (strcmp($k, 'secret') == 0)
             {
-                $tempArray[(string)$key] = $preshared_key;
+                $tempArray['secret'] = $preshared_key;
             } else {
-                $tempArray[(string)$key] = (string)$_POST[$key];
+                $tempArray[(string)$k] = (string)$_POST[$k];
             }
         }
 
@@ -145,7 +144,7 @@ if ($_POST)
                     break;
 
                 default:
-                    $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
+                    $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             }
             debug_msg('Callback Process');
             $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
@@ -192,6 +191,8 @@ if ($_POST)
             debug_msg('Invalid Responsefingerprint.');
             debug_msg('calc-fingerprint: ' .$calculated_fingerprint);
             debug_msg('response-fingerprint: '. $_POST['responseFingerprint']);
+            $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
+            $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
         }
     }
     else
@@ -239,7 +240,7 @@ if ($_POST)
         {
             $message = isset($_POST['message']) ? htmlentities($_POST['message']) : '';
             debug_msg('Order Failed: '.$message);
-            $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
+            $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             debug_msg('Callback Process');
              $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
                SET orders_status='" . (int)$order_status . "'
