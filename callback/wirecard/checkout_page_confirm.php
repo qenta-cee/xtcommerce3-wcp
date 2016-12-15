@@ -193,6 +193,7 @@ if ($_POST)
             debug_msg('response-fingerprint: '. $_POST['responseFingerprint']);
             $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
+            $_SESSION['wirecard_checkout_page_fingerprintinvalid'] = 'FAILURE';
         }
     }
     else
