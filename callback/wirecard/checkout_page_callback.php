@@ -26,19 +26,29 @@ chdir('../../');
 include_once('includes/application_top.php');
 include_once('includes/modules/payment/wirecard_checkout_page.php');
 
-if(isset($_POST))
-{
+if(isset($_POST)) {
     $paymentState = '';
     $trid = isset($_POST['trid']) ? $_POST['trid'] : '';
-	
-    $q = xtc_db_query('SELECT RESPONSEDATA FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "'.xtc_db_input($trid).'" LIMIT 1;');
-	$dbEntry = xtc_db_fetch_array($q);
-	$paymentInformation = json_decode($dbEntry['RESPONSEDATA'],true);
 
-    if(isset($dbEntry['RESPONSEDATA'])) {
-        $paymentState = $paymentInformation['paymentState'];
-    }
+    $q = xtc_db_query('SELECT RESPONSEDATA FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "' . xtc_db_input($trid) . '" LIMIT 1;');
+    $dbEntry = xtc_db_fetch_array($q);
+    $paymentInformation = json_decode($dbEntry['RESPONSEDATA'], true);
+
+    $q = xtc_db_query('SELECT ORDERID FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "' . xtc_db_input($trid) . '" LIMIT 1;');
+    $dbEntry = xtc_db_fetch_array($q);
+    $order_id = json_decode($dbEntry['ORDERID'], true);
+
+    $q = xtc_db_query('SELECT orders_status FROM ' . TABLE_ORDERS . ' WHERE orders_id = "' . $order_id . '" LIMIT 1;');
+    $dbEntry = xtc_db_fetch_array($q);
+    $order_state= json_decode($dbEntry['orders_status'], true);
+
     //fallback update of order
+    if (isset($dbEntry['RESPONSEDATA'])) {
+        $paymentState = $paymentInformation['paymentState'];
+        if (isset($_SESSION['wirecard_checkout_page_fingerprintinvalid'])) {
+            $paymentState = $_SESSION['wirecard_checkout_page_fingerprintinvalid'];
+        }
+    }
     else {
 		chdir('callback/wirecard/');
         include ('checkout_page_confirm.php');
@@ -47,9 +57,12 @@ if(isset($_POST))
 		$dbEntry = xtc_db_fetch_array($q);
 
 		$paymentInformation = json_decode($dbEntry['RESPONSEDATA'],true);
-		
+
         if(isset($dbEntry['RESPONSEDATA'])) {
             $paymentState = $paymentInformation['paymentState'];
+        }
+        if (isset($_SESSION['wirecard_checkout_page_fingerprintinvalid'])) {
+            $paymentState = $_SESSION['wirecard_checkout_page_fingerprintinvalid'];
         }
     }
 
@@ -70,6 +83,7 @@ if(isset($_POST))
 			unset($_SESSION['wirecard_checkout_page']['payMethod']);
 			unset($_SESSION['payment']);	
 			unset($_SESSION['wcp_trustpay_bank_selected']);
+            unset($_SESSION['wirecard_checkout_page_fingerprintinvalid']);
             $link = xtc_href_link('checkout_wirecard_checkout_page.php', 'failure=1', 'SSL');
             break;
     }

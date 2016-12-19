@@ -94,7 +94,7 @@ if ($_POST)
     if(isset($_POST['responseFingerprintOrder']) && isset($_POST['responseFingerprint']))
     {
         $responseFingerprintOrder = explode(',', $_POST['responseFingerprintOrder']);
-        $responseFingerprintSeed  = '';
+        $tempArray  = array();
         $c = strtoupper($_POST['paymentCode']);
 
         switch(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE) {
@@ -110,29 +110,25 @@ if ($_POST)
                 break;
         }
 
-        if(get_magic_quotes_gpc() || get_magic_quotes_runtime())
-        {
-            $stipslashes = true;
-        }
-        else
-        {
-            $stipslashes = false;
-        }
-
         //calculating fingerprint;
         foreach($responseFingerprintOrder as $k)
         {
-            if($stipslashes)
+            if (strcmp($k, 'secret') == 0)
             {
-                $responseFingerprintSeed .= (strtoupper($k) == 'SECRET' ? $preshared_key : stripslashes($_POST[$k]));
-            }
-            else
-            {
-                $responseFingerprintSeed .= (strtoupper($k) == 'SECRET' ? $preshared_key : $_POST[$k]);
+                $tempArray['secret'] = $preshared_key;
+            } else {
+                $tempArray[(string)$k] = (string)$_POST[$k];
             }
         }
 
-        $calculated_fingerprint = md5($responseFingerprintSeed);
+        $hash = hash_init('sha512', HASH_HMAC, $preshared_key);
+
+        foreach ($tempArray as $key => $value) {
+            hash_update($hash, $value);
+        }
+
+        $calculated_fingerprint = hash_final($hash);
+
         if($calculated_fingerprint == $_POST['responseFingerprint'])
         {
             debug_msg('Fingerprint is OK');
@@ -148,7 +144,7 @@ if ($_POST)
                     break;
 
                 default:
-                    $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
+                    $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             }
             debug_msg('Callback Process');
             $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
@@ -195,6 +191,9 @@ if ($_POST)
             debug_msg('Invalid Responsefingerprint.');
             debug_msg('calc-fingerprint: ' .$calculated_fingerprint);
             debug_msg('response-fingerprint: '. $_POST['responseFingerprint']);
+            $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
+            $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
+            $_SESSION['wirecard_checkout_page_fingerprintinvalid'] = 'FAILURE';
         }
     }
     else
@@ -242,7 +241,7 @@ if ($_POST)
         {
             $message = isset($_POST['message']) ? htmlentities($_POST['message']) : '';
             debug_msg('Order Failed: '.$message);
-            $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
+            $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             debug_msg('Callback Process');
              $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
                SET orders_status='" . (int)$order_status . "'

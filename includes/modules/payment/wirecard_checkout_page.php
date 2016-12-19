@@ -30,7 +30,7 @@
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TOOLKIT_URL','https://checkout.wirecard.com/page/toolkit.php'); 
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_REDIRECT','checkout_wirecard_checkout_page.php');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_IFRAME','wirecard_checkout_page_iframe.php');
-  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.9.0');
+  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.10.0');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINNAME', 'xtCommerce3');
   define('MODULE_PAYMENT_WIRECARD_REDIRECT_TIMEOUT_SECOUNDS', 2);
   
@@ -246,6 +246,7 @@ class wirecard_checkout_page {
  						  'order_id'        		     => $insert_id,
                           'trid'                         => $this->transaction_id,
                           'pluginVersion'                => $pluginVersion,
+                          'consumerMerchantCrmId'        => md5($order->customer['email_address']),
 						 );
 						
 						  
@@ -338,23 +339,22 @@ class wirecard_checkout_page {
 		$postData = array_map('utf8_encode',$postData);
 		
         $requestFingerprintOrder = 'secret';
-        $requestFingerprintSeed = $preshared_key;
+        $tempArray = array('secret' => $preshared_key);
         foreach($postData AS $parameterName => $parameterValue)
         {
-            //check if value is empty, delete and skip it
-            if(empty($parameterValue) && '0' !== $parameterValue) {
-                unset($postData[$parameterName]);
-                continue;
-            }
-			
             $requestFingerprintOrder .= ','.$parameterName;
-            $requestFingerprintSeed .= $parameterValue;
+            $tempArray[(string)$parameterName] = (string)$parameterValue;
         }
 		
         $requestFingerprintOrder .= ',requestFingerprintOrder';
-        $requestFingerprintSeed .= $requestFingerprintOrder;
+        $tempArray['requestFingerprintOrder'] = $requestFingerprintOrder;
+
+        $hash = hash_init('sha512', HASH_HMAC, $preshared_key);
+        foreach ($tempArray as $key => $value) {
+            hash_update($hash, $value);
+        }
         $postData['requestFingerprintOrder'] = $requestFingerprintOrder;
-        $postData['requestFingerprint'] = md5($requestFingerprintSeed);
+        $postData['requestFingerprint'] = hash_final($hash);
 
         xtc_db_query("INSERT INTO " . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . " (TRID, PAYSYS, DATE, ORDERID) VALUES ('" . $this->transaction_id . "', '" . $paymentType . "', NOW(), ".$insert_id.")");
 
