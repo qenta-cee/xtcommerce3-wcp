@@ -30,7 +30,7 @@
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TOOLKIT_URL','https://checkout.wirecard.com/page/toolkit.php'); 
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_REDIRECT','checkout_wirecard_checkout_page.php');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_IFRAME','wirecard_checkout_page_iframe.php');
-  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.10.0');
+  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.11.0');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINNAME', 'xtCommerce3');
   define('MODULE_PAYMENT_WIRECARD_REDIRECT_TIMEOUT_SECOUNDS', 2);
   
@@ -41,6 +41,8 @@ class wirecard_checkout_page {
     var $customerIdTestMode = 'D200411';
     var $secretDemoMode = 'B8AKTPWBRMNBV455FG6M2DANE99WU2';
     var $secretTestMode = 'CHCSH7UGHVVX2P7EHDHSY4T2S4CGYK4QBE4M5YUUG2ND5BEZWNRZW5EJYVJQ';
+	var $secretTest3DMode = 'DP4TMTPQQWFJW34647RM798E9A5X7E8ATP462Z4VGZK53YEJ3JWXS98B9P4F';
+	var $shopIdTest3DMode = '3D';
     var $toolkitPasswordTestMode = 'jcv45z';
     var $toolkitPasswordDemoMode = 'jcv45z';
 	
@@ -205,6 +207,9 @@ class wirecard_checkout_page {
                 $preshared_key = $this->secretTestMode;
                 $customerId = $this->customerIdTestMode;
                 break;
+            case 'Test3D':
+                $preshared_key = $this->secretTest3DMode;
+                $customerId = $this->customerIdTestMode;
             case 'Live':
             default:
                 $preshared_key = trim(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET);
@@ -252,7 +257,7 @@ class wirecard_checkout_page {
 						  
 
 						
-        if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CUSTOMER_DATA == 'True') {
+        if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA == 'True' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_BILLING_DATA == 'True') {
 						
             $postData['companyName']               = $billingInformation['company'];
             $postData['companyVatId']              = $customers_vat_id;
@@ -613,7 +618,13 @@ class wirecard_checkout_page {
                 $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'CCARD', (('CCARD' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
                                     'field' => xtc_image(DIR_WS_ICONS.'/wcp/ccard.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT);
             }
-			
+
+	        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS == 'True')
+	        {
+		        $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'MASTERPASS', (('MASTERPASS' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
+		                            'field' => xtc_image(DIR_WS_ICONS.'/wcp/masterpass.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT);
+	        }
+
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO == 'True')
             {
 				if($this->_preCc_MotoCheck()) {
@@ -657,23 +668,11 @@ class wirecard_checkout_page {
                 $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SOFORTUEBERWEISUNG', (('SOFORTUEBERWEISUNG' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
                                     'field' => xtc_image(DIR_WS_ICONS.'/wcp/sofort_ueberweisung.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE_TEXT);
             }
-
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLDIRECT == 'True')
-            {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SKRILLDIRECT', (('SKRILLDIRECT' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/skrill_direct.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLDIRECT_TEXT);
-            }
 			
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET == 'True')
             {
                 $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SKRILLWALLET', (('SKRILLWALLET' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
 									'field' => xtc_image(DIR_WS_ICONS.'/wcp/skrill_digital_wallet.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET_TEXT);
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MPASS == 'True')
-            {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'MPASS', (('MPASS' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/mpass.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MPASS_TEXT);
             }
 			
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC == 'True')
@@ -964,7 +963,7 @@ class wirecard_checkout_page {
     function install()
     {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_STATUS', 'True', '6', '0', 'xtc_cfg_select_option(array(\'True\', \'False\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE', 'Demo', '6', '1', 'xtc_cfg_select_option(array(\'Demo\', \'Test\', \'Live\'),', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE', 'Demo', '6', '1', 'xtc_cfg_select_option(array(\'Demo\', \'Test\', \'Test3D\', \'Live\'),', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMERID', '$this->customerIdDemoMode', '6', '2', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET', '$this->secretDemoMode', '6', '3', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOPID', '', '6', '5', now())");
@@ -973,6 +972,7 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT', 'Select your pament method', '6', '6', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD', 'False', '6', '202', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS', 'False', '6', '203', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO', 'False', '6', '204', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS', 'False', '6', '206', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDEAL', 'False', '6', '208', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -996,23 +996,34 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA', 'False', '6', '240', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24', 'False', '6', '242', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI', 'False', '6', '244', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MPASS', 'False', '6', '246', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLDIRECT', 'False', '6', '248', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET', 'False', '6', '250', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER', 'False', '6', '253', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SERVICEURL', '', '6', '300', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_IMAGEURL', '', '6', '301', now())");
-        
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MIN_AMOUNT', '100', '6', '310', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MAX_AMOUNT', '10000', '6', '311', now())");
 
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MIN_AMOUNT', '100', '6', '320', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MAX_AMOUNT', '10000', '6', '321', now())");
+
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER', 'payolution', '6', '500', 'xtc_cfg_select_option(array(\'payolution\', \'RatePay\', \'Wirecard\'), ', now())");
+
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_SHIPPING', 'False', '6', '501', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_CURRENCIES', 'EUR', '6', '502', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_COUNTRIES', 'AT,DE,CH', '6', '503', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MIN_AMOUNT', '10', '6', '504', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MAX_AMOUNT', '3500', '6', '505', now())");
+
+
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER', 'payolution', '6', '550', 'xtc_cfg_select_option(array(\'payolution\', \'RatePay\'), ', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_SHIPPING', 'False', '6', '551', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_CURRENCIES', 'EUR', '6', '552', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_COUNTRIES', 'AT,DE,CH', '6', '553', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MIN_AMOUNT', '150', '6', '554', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MAX_AMOUNT', '3500', '6', '555', now())");
+
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMER_STATEMENT', '', '6', '330', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TEXT_DISPLAYTEXT', '', '6', '331', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CUSTOMER_DATA', 'True', '6', '332', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA', 'True', '6', '333', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA', 'True', '6', '332', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_BILLING_DATA', 'True', '6', '333', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA', 'True', '6', '334', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SORT_ORDER', '0', '6', '400', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, use_function, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ZONE', '0', '6', '410', 'xtc_get_zone_class_title', 'xtc_cfg_pull_down_zone_classes(', now())");
@@ -1025,7 +1036,7 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DUPLICATE_REQUEST_CHECK', 'False', '6', '340', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_AUTO_DEPOSIT', 'False', '6', '341', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CONFIRMATION_MAIL', '', '6', '342', '', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MAX_RETRIES', '', '6', '343', '', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MAX_RETRIES', '-1', '6', '343', '', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYMENTTYPE_SORT_ORDER', '', '6', '344', '', now())");
 
 		
@@ -1064,14 +1075,14 @@ class wirecard_checkout_page {
 
     function remove()
     {
+	    xtc_db_query("DELETE FROM ".TABLE_CONFIGURATION." WHERE configuration_key IN ('".implode("', '", $this->keys())."')");
       $removeTXTable = isset($_GET['removeTXTable']) ? $_GET['removeTXTable'] : 'false';
       if($removeTXTable == 'true')
       {
-          xtc_db_query("DROP TABLE ".MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE);
+          xtc_db_query("DROP TABLE IF EXISTS ".MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE);
       }
       else
       {
-          xtc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . xtc_db_input(implode("', '", $this->keys())) . "')");
           ?>
           <html>
           <head>
@@ -1106,6 +1117,7 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS',
@@ -1114,9 +1126,7 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLDIRECT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MPASS',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA',
@@ -1132,8 +1142,16 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_SHIPPING',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_CURRENCIES',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_COUNTRIES',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MIN_AMOUNT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MAX_AMOUNT',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_SHIPPING',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_CURRENCIES',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_COUNTRIES',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MIN_AMOUNT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MAX_AMOUNT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMER_STATEMENT',
@@ -1151,7 +1169,8 @@ class wirecard_checkout_page {
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CONFIRMATION_MAIL',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MAX_RETRIES',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYMENTTYPE_SORT_ORDER',
-					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CUSTOMER_DATA',
+					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA',
+					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_BILLING_DATA',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA',
 					);
     }
