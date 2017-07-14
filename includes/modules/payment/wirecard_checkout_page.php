@@ -37,6 +37,8 @@
 class wirecard_checkout_page {
     var $code, $title, $description, $enabled, $transaction_id;
 
+    var $_payments = null;
+
     var $customerIdDemoMode = 'D200001';
     var $customerIdTestMode = 'D200411';
     var $secretDemoMode = 'B8AKTPWBRMNBV455FG6M2DANE99WU2';
@@ -542,7 +544,7 @@ class wirecard_checkout_page {
     function selection()
     {
 		global $order;
-		
+
         if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True')
         {
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT == '')
@@ -559,267 +561,219 @@ class wirecard_checkout_page {
         }
         else
         {
-            // we have to use a JavaScript helper function to select the main-payment type if a sub type was selected
-            $subTypes = array();
-            $jsHelper = 'onClick="for (var i = 0; i < document.forms.length; i++){var form = document.forms[i];for (var j = 0; j < form.elements.length; j++){var element = form.elements[j];if (element.value ==  \'' . $this->code . '\' && element.type == \'radio\'){element.checked = true; break;}}}"';
-			
-			$jsFunctions = '
-			<script>
-			 function addDobField(elemId) {
-										if(document.getElementById(elemId + \'customers_dob\') === null) {	
-											var tr = document.createElement(\'tr\');
-											var td1 = tr.appendChild(document.createElement(\'td\'));
-											var td2 = tr.appendChild(document.createElement(\'td\'));
-											td2.id = elemId + \'customers_dob\';
-											td2.innerHTML = \''.MODULE_PAYMENT_WCP_DATE_OF_BIRTH_TEXT.'\';
-											td2.width = \'100px\';
+	        $content = '';
+	        $count   = 0;
+	        $content .= '<input id="wirecard_checkout_page_payment" type="hidden" name="wirecard_checkout_page" value="select">';
+	        $content .= '</strong></td><td>';
 
-											var td3 = tr.appendChild(document.createElement(\'td\'));
-											var inputDob = document.createElement(\'input\')
-											inputDob.maxlength = 10;
-											inputDob.name = \'customers_dob\';
-											td3.appendChild(inputDob);
-											document.getElementById(elemId).appendChild(tr);
-										}
-									}
-			function addVatIdField(elemId) {
-										if(document.getElementById(elemId + \'customers_vat_id\') === null) {	
-											var tr = document.createElement(\'tr\');
-											var td1 = tr.appendChild(document.createElement(\'td\'));
-											var td2 = tr.appendChild(document.createElement(\'td\'));
-											td2.id = elemId + \'customers_vat_id\';
-											td2.width = \'100px\';
-											td2.innerHTML = \''.MODULE_PAYMENT_WCP_ENTRY_VAT_ID.'\';
-
-											var td3 = tr.appendChild(document.createElement(\'td\'));
-											var inputDob = document.createElement(\'input\')
-											inputDob.name = \'customers_vat_id\';
-											td3.appendChild(inputDob);
-											document.getElementById(elemId).appendChild(tr);
-										}
-									}
-			 </script>';
-
-			$payolutionAdditonalInfoText = '';
-			if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True') {
-				$payolutionAdditonalInfoTextInstallment = xtc_draw_checkbox_field('wcp_accepted_payolution_terms_installment', '1').' '.sprintf(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TEXT_INSTALLMENT,'https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId='.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_MID);
-				$payolutionAdditonalInfoTextInvoice = xtc_draw_checkbox_field('wcp_accepted_payolution_terms_invoice', '1').' '.sprintf(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TEXT_INVOICE,'https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId='.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_MID);
-			}
-  
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO == 'True')
+	        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'CCARD', (('CCARD' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/maestro_secure_code.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT);
+                $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ccard.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="CCARD">';
             }
 
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD == 'True')
+			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO == 'True')
             {
-				
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'CCARD', (('CCARD' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/ccard.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MAESTRO" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/maestro.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="MAESTRO">';
             }
 
 	        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS == 'True')
 	        {
-		        $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'MASTERPASS', (('MASTERPASS' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-		                            'field' => xtc_image(DIR_WS_ICONS.'/wcp/masterpass.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT);
+		        $count++;
+		        $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MASTERPASS" onclick="selectRowEffectCustomWcp(this)"><td>';
+		        $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/masterpass.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT . '</strong></td><td align="right">'.
+		                    '<input type="radio" name="payment" value="MASTERPASS">';
 	        }
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO == 'True')
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO == 'True')
             {
 				if($this->_preCc_MotoCheck()) {
-					$subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'CCARD-MOTO', (('CCARD-MOTO' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-										'field' => xtc_image(DIR_WS_ICONS.'/wcp/ccard_moto.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO_TEXT);
+					$count++;
+					$content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD-MOTO" onclick="selectRowEffectCustomWcp(this)"><td>';
+					$content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ccard.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO_TEXT . '</strong></td><td align="right">'.
+					            '<input type="radio" name="payment" value="CCARD-MOTO">';
 				}
             }
-			
+
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'EPS', (('EPS' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/eps-online-ueberweisung.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPS" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/eps.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="EPS">';
             }
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDEAL == 'True')
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'IDL', (('IDL' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/ideal.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDEAL_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="IDL" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/idl.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="IDL">';
             }
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_WGP == 'True')
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'GIROPAY', (('GIROPAY' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/giropay.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_WGP_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="GIROPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/giropay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="GIROPAY">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'TATRAPAY', (('TATRAPAY' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/tatrapay.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY_TEXT);
-            }
-			
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY == 'True')
-            {
-                 $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'TRUSTPAY', (('TRUSTPAY' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/trustpay.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY_TEXT);
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE == 'True')
-            {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SOFORTUEBERWEISUNG', (('SOFORTUEBERWEISUNG' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/sofort_ueberweisung.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE_TEXT);
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET == 'True')
-            {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SKRILLWALLET', (('SKRILLWALLET' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/skrill_digital_wallet.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET_TEXT);
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC == 'True')
-            {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'BANCONTACT_MISTERCASH', (('BANCONTACT_MISTERCASH' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/bancontact_mistercash.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TATRAPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/tatrapay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="TATRAPAY">';
             }
 
-		    if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24 == 'True')
+			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'PRZELEWY24', (('PRZELEWY24' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/p24.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/trustpay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="TRUSTPAY">';
+            }
+
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG == 'True')
+            {
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SOFORTUEBERWEISUNG" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/sofortueberweisung.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="SOFORTUEBERWEISUNG">';
+            }
+
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET == 'True')
+            {
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SKRILLWALLET" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/skrillwallet.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="SKRILLWALLET">';
+            }
+
+            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT == 'True')
+            {
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="BANCONTACT_MISTERCASH" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/bancontact.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="BANCONTACT_MISTERCASH">';
+            }
+
+		    if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24 == 'True')
+            {
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PRZELEWY24" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/p24.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="PRZELEWY24">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'MONETA', (('MONETA' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/moneta_ru.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MONETA" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/moneta.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="MONETA">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'POLI', (('POLI' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/poli.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="POLI" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/poli.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="POLI">';
             }
-			
+
 			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'EKONTO', (('EKONTO' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/ekonto.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EKONTO" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ekonto.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="EKONTO">';
             }
-			
+
 			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'TRUSTLY', (('TRUSTLY' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/trustly.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTLY" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/trustly.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="TRUSTLY">';
             }
-			
+
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'PBX', (('PBX' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/paybox.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PBX" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/pbx.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="PBX">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'PSC', (('PSC' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/paysafecard_mypaysafecard.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC_TEXT);
-            }		
-			
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PSC" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/psc.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="PSC">';
+            }
+
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'QUICK', (('QUICK' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/quick.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="QUICK" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/quick.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="QUICK">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'PAYPAL', (('PAYPAL' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/paypal.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PAYPAL" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/paypal.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="PAYPAL">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'EPAY_BG', (('EPAY_BG' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/epay.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPAY_BG" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/epay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="EPAY_BG">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'SEPA-DD', (('SEPA-DD' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-                                    'field' => xtc_image(DIR_WS_ICONS.'/wcp/sepa.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TEXT);
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True')
-            {
-				$jsHelperInvoice = '';
-				if(!$this->_getCustomersDob()) {
-					$jsHelperInvoice .= "addDobField('WCP-INVOICE-TABLE');";
-				}
-				if(!$this->_getCustomersVatId() && $this->_customerIsMerchant()) {
-					$jsHelperInvoice .= "addVatIdField('WCP-INVOICE-TABLE');";
-				}
-								
-				$includeJs = '';
-				//if payment is already selected add fields on page load
-				if('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod'] && !empty($jsHelperInvoice)) {
-					$includeJs = '<script>window.onload = function() {'.$jsHelperInvoice.'}</script>';
-				}
-
-				if(!empty($jsHelperInvoice))
-					$jsHelperInvoice = substr($jsHelper,0,-1).$jsHelperInvoice.'"';
-				else
-					$jsHelperInvoice = $jsHelper;
-
-                if($this->_preInvoiceCheck()) {
-                    $subTypes[] = array('title' => $includeJs.xtc_draw_radio_field('wirecard_checkout_page', 'INVOICE', (('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelperInvoice),
-										'field' => '<table id="WCP-INVOICE-TABLE">
-										<tr><td>'.xtc_image(DIR_WS_ICONS.'/wcp/invoice.jpg').'</td><td colspan="2">'.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT.'</td></tr>
-										<tr><td></td><td colspan="2">'.$payolutionAdditonalInfoTextInvoice.'</td></tr>
-										</table>');
-
-				}
-            }
-			
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True')
-            {
-				$jsHelperInstallment = '';
-				if(!$this->_getCustomersDob()) {
-					$jsHelperInstallment .= "addDobField('WCP-INSTALLMENT-TABLE');";
-				}
-
-				$includeJs = '';
-				//if payment is already selected add fields on page load
-				if('INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod'] && !empty($jsHelperInstallment)) {
-					$includeJs = '<script>window.onload = function() {'.$jsHelperInstallment.'}</script>';
-				}				
-				
-				if(!empty($jsHelperInstallment))
-					$jsHelperInstallment = substr($jsHelper,0,-1).$jsHelperInstallment.'"';
-				else
-					$jsHelperInstallment = $jsHelper;
-			
-                if($this->_preInstallmentCheck()) {
-                    $subTypes[] = array('title' => $includeJs.xtc_draw_radio_field('wirecard_checkout_page', 'INSTALLMENT', (('INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelperInstallment),
-										'field' => '<table id="WCP-INSTALLMENT-TABLE">
-										<tr><td>'.xtc_image(DIR_WS_ICONS.'/wcp/installment.jpg').'</td><td colspan="2">'.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT_TEXT.'</td></tr>
-										<tr><td></td><td colspan="2">'.$payolutionAdditonalInfoTextInstallment.'</td></tr>
-										</table>');
-                }
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SEPA-DD" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/sepa-dd.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="SEPA-DD">';
             }
 
             if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER == 'True')
             {
-                $subTypes[] = array('title' => xtc_draw_radio_field('wirecard_checkout_page', 'VOUCHER', (('VOUCHER' === $_SESSION['wirecard_checkout_page']['payMethod']) ? true : false), $jsHelper),
-									'field' => xtc_image(DIR_WS_ICONS.'/wcp/myVoucher.jpg').' '.MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT);
+	            $count++;
+	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="VOUCHER" onclick="selectRowEffectCustomWcp(this)"><td>';
+	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/voucher.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</strong></td><td align="right">'.
+	                        '<input type="radio" name="payment" value="VOUCHER">';
             }
 
+	        $content .= '</td></tr><tr style="display:none;">';
+	        $content .= '
+		    <script type="text/javascript">
+		    function selectRowEffectCustomWcp(e){
+		     f = $(e).closest("table").index()-1;
+		     $("#wirecard_checkout_page_payment").val($(e).data("paymentcode"));
+		     selectRowEffect(e,f);   
+		    }
+				var checkoutTable = document.getElementById("wirecard_payment_table_1").previousElementSibling;
+				checkoutTable.style.display = "none";
+			</script>';
 
-			//add js functions
-			if($subTypes[0]) {
-				$subTypes[0]['title'] = $jsFunctions.$subTypes[0]['title'];
-			}
-			
             return array('id' => $this->code,
-                         'module' => $this->title,
-                         'fields' => $subTypes);
+                         'module' => $content);
         }
     }
 
@@ -975,11 +929,11 @@ class wirecard_checkout_page {
 	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS', 'False', '6', '203', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO', 'False', '6', '204', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS', 'False', '6', '206', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDEAL', 'False', '6', '208', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_WGP', 'False', '6', '210', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL', 'False', '6', '208', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY', 'False', '6', '210', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY', 'False', '6', '211', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY', 'False', '6', '212', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE', 'False', '6', '213', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG', 'False', '6', '213', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX', 'False', '6', '214', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC', 'False', '6', '216', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK', 'False', '6', '218', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -988,13 +942,13 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD', 'False', '6', '222', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE', 'False', '6', '228', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO', 'False', '6', '230', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC', 'False', '6', '232', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO', 'False', '6', '230', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_MISTERCASH', 'False', '6', '232', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO', 'False', '6', '234', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT', 'False', '6', '236', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY', 'False', '6', '238', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA', 'False', '6', '240', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24', 'False', '6', '242', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24', 'False', '6', '242', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI', 'False', '6', '244', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET', 'False', '6', '250', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER', 'False', '6', '253', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -1119,16 +1073,16 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARDMOTO',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDEAL',					
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_WGP',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SUE',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BMC',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_P24',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_MISTERCASH',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO',
