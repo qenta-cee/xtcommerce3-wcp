@@ -541,241 +541,182 @@ class wirecard_checkout_page {
         return false;
     }
 
-    function selection()
-    {
+	function selection() {
 		global $order;
 
-        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True')
-        {
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT == '')
-            {
-                return array('id' => $this->code,
-                             'module' => $this->title);
-            }
-            else
-            {
-                return array('id' => $this->code,
-                             'module' => $this->title,
-                             'fields' => array(array('title' => '', 'field' => MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT)));
-            }
-        }
-        else
-        {
-	        $content = '';
-	        $count   = 0;
-	        $content .= '<input id="wirecard_checkout_page_payment" type="hidden" name="wirecard_checkout_page" value="select">';
-	        $content .= '</strong></td><td>';
+		$content = '';
+		$count   = 0;
+		$content .= '<input id="wirecard_checkout_page_payment" type="hidden" name="wirecard_checkout_page" value="select">';
+		$content .= '</strong></td><td></td></tr></tbody></table></td></tr>';
 
-	        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD == 'True')
-            {
-                $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ccard.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="CCARD">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SELECT" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/ccard.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MAESTRO" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/maestro.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="MAESTRO">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/ccard.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-	        if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS == 'True')
-	        {
-		        $count++;
-		        $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MASTERPASS" onclick="selectRowEffectCustomWcp(this)"><td>';
-		        $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/masterpass.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT . '</strong></td><td align="right">'.
-		                    '<input type="radio" name="payment" value="MASTERPASS">';
-	        }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MAESTRO" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/maestro.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO == 'True')
-            {
-				if($this->_preCc_MotoCheck()) {
-					$count++;
-					$content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD-MOTO" onclick="selectRowEffectCustomWcp(this)"><td>';
-					$content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ccard.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO_TEXT . '</strong></td><td align="right">'.
-					            '<input type="radio" name="payment" value="CCARD-MOTO">';
-				}
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MASTERPASS" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/masterpass.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPS" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/eps.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="EPS">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO == 'True' ) {
+			if ( $this->_preCc_MotoCheck() ) {
+				$count ++;
+				$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD-MOTO" onclick="selectRowEffectCustomWcp(this)">';
+				$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/ccard.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			}
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="IDL" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/idl.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="IDL">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPS" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/eps.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="GIROPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/giropay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="GIROPAY">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="IDL" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/idl.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TATRAPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/tatrapay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="TATRAPAY">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="GIROPAY" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/giropay.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTPAY" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/trustpay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="TRUSTPAY">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TATRAPAY" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TATRAPAY_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/tatrapay.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SOFORTUEBERWEISUNG" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/sofortueberweisung.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="SOFORTUEBERWEISUNG">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTPAY" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/trustpay.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SKRILLWALLET" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/skrillwallet.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="SKRILLWALLET">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SOFORTUEBERWEISUNG" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/sofortueberweisung.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="BANCONTACT_MISTERCASH" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/bancontact.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="BANCONTACT_MISTERCASH">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SKRILLWALLET" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/skrillwallet.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-		    if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24 == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PRZELEWY24" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/p24.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="PRZELEWY24">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="BANCONTACT_MISTERCASH" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/bancontact.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MONETA" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/moneta.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="MONETA">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24 == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PRZELEWY24" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/p24.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="POLI" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/poli.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="POLI">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="MONETA" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/moneta.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EKONTO" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/ekonto.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="EKONTO">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="POLI" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/poli.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-			if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTLY" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/trustly.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="TRUSTLY">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EKONTO" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/ekonto.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PBX" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/pbx.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="PBX">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="TRUSTLY" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/trustly.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PSC" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/psc.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="PSC">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PBX" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/pbx.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="QUICK" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/quick.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="QUICK">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PSC" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/psc.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PAYPAL" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/paypal.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="PAYPAL">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="QUICK" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/quick.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPAY_BG" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/epay.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="EPAY_BG">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PAYPAL" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/paypal.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SEPA-DD" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/sepa-dd.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="SEPA-DD">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPAY_BG" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/epay.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-            if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER == 'True')
-            {
-	            $count++;
-	            $content .= '</td></tr></tbody></table><table id="wirecard_checkout_page_'. $count .'" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="VOUCHER" onclick="selectRowEffectCustomWcp(this)"><td>';
-	            $content .= '<strong>' . xtc_image(DIR_WS_ICONS.'/wcp/voucher.png').' '. MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</strong></td><td align="right">'.
-	                        '<input type="radio" name="payment" value="VOUCHER">';
-            }
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SEPA-DD" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/sepa-dd.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
-	        $content .= '</td></tr><tr style="display:none;">';
-	        $content .= '
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER == 'True' ) {
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="VOUCHER" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/voucher.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
+
+		$content .= '<tr style="display:none;"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody><tr></tr>';
+		$content .= '
 		    <script type="text/javascript">
 		    function selectRowEffectCustomWcp(e){
-		     f = $(e).closest("table").index()-1;
-		     $("#wirecard_checkout_page_payment").val($(e).data("paymentcode"));
-		     selectRowEffect(e,f);   
+		     document.getElementById("wirecard_checkout_page_payment").value = e.getAttribute("data-paymentcode");
+		     selectRowEffect(e,e);   
 		    }
-				var checkoutTable = document.getElementById("wirecard_payment_table_1").previousElementSibling;
+				var checkoutTable = document.getElementById("tr_wirecard_checkout_page_1").previousElementSibling;
 				checkoutTable.style.display = "none";
 			</script>';
 
-            return array('id' => $this->code,
-                         'module' => $content);
-        }
-    }
+		return array(
+			'id'     => $this->code,
+			'module' => $content
+		);
+	}
 
     /*
      * @return bool
@@ -923,7 +864,6 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOPID', '', '6', '5', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME', 'True', '6', '6', 'xtc_cfg_select_option(array(\'True\', \'False\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT', 'True', '6', '7', 'xtc_cfg_select_option(array(\'True\', \'False\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT', 'Select your pament method', '6', '6', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD', 'False', '6', '202', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
 	    xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS', 'False', '6', '203', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -1069,7 +1009,6 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOPID',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO',

@@ -41,8 +41,6 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_TITLE','Use Iframe');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_DESC','Start Wirecard Checkout Page in an Iframe in your shop. <strong>Note:</strong> PayPal and Sofort&uuml;berweisung will always use page redirect.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TITLE','Enable payment method SELECT');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_DESC','The customer can select the payment method in Wirecard Checkout Page. If activated, no other payment method is displayed in the shop.');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT_TITLE','Payment method text');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT_DESC','Enter the text which should be displayed as description for the payment method SELECT (e.g. MasterCard, Visa, ...).');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TITLE','Credit Card');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_DESC','Enable payment method Credit Card?');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TITLE','Masterpass');

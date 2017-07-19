@@ -41,7 +41,6 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_TITLE','Iframe verwende
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_DESC','Startet den Wirecard Checkout Page Zahlungsprozess in einem Iframe innerhalb des Shops. <strong>Hinweis:</strong> F&uuml;r PayPal und Sofort&uuml;berweisung wird immer eine Weiterleitung verwendet.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TITLE','Zahlungsmittel SELECT');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_DESC','Die Zahlungsmittelauswahl erfolgt auf der Wirecard Checkout Page. Wenn aktiviert, werden keine weiteren Zahlungsmittel der Wirecard Checkout Page im Shop angezeigt.');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TEXT_DESC','Geben Sie den Text an, der als Beschreibung f&uuml;r die Zahlungsmittel SELECT dargestellt werden soll (z.B. MasterCard, Visa, ...).');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TITLE','Kreditkarte');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_DESC','Zahlungsmittel Kreditkarte aktivieren?');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TITLE','Masterpass');
