@@ -703,14 +703,43 @@ class wirecard_checkout_page {
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="VOUCHER" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/voucher.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True' ) {
+			if(!$this->_getCustomersDob()) {
+				$birthday = 'noBirthday';
+			} else {
+			    $birthday = $this->_getCustomersDob();
+            }
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INVOICE" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/invoice.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<tr class="wcp-additional" style="display: none"><td class="onepxwidth"></td><td class="main" colspan="3">'.$birthday.'</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True' ) {
+			if(!$this->_getCustomersDob()) {
+				$birthday = 'noBirthday';
+			} else {
+				$birthday = $this->_getCustomersDob();
+			}
+			$count ++;
+			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INSTALLMENT" onclick="selectRowEffectCustomWcp(this)">';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/installment.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<tr class="wcp-additional" style="display: none"><td class="onepxwidth"></td><td class="main" colspan="3">'.$birthday.'</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+		}
 
 		$content .= '<tr style="display:none;"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody><tr></tr>';
 		$content .= '
 		    <script type="text/javascript">
 		    function selectRowEffectCustomWcp(e){
 		     document.getElementById("wirecard_checkout_page_payment").value = e.getAttribute("data-paymentcode");
+		     [].forEach.call(document.querySelectorAll(".wcp-additional"), function (el) {
+		         el.style.display = "none";
+		     });
+		     if(e.nextElementSibling != null) {
+		         e.nextElementSibling.style.display = "";
+		     }
 		     selectRowEffect(e,e);   
 		    }
+		    
 				var checkoutTable = document.getElementById("tr_wirecard_checkout_page_1").previousElementSibling;
 				checkoutTable.style.display = "none";
 			</script>';
