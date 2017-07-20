@@ -255,88 +255,91 @@ class wirecard_checkout_page {
                           'pluginVersion'                => $pluginVersion,
                           'consumerMerchantCrmId'        => md5($order->customer['email_address']),
 						 );
-						
-						  
 
-						
-        if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA == 'True' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_BILLING_DATA == 'True') {
-						
-            $postData['companyName']               = $billingInformation['company'];
-            $postData['companyVatId']              = $customers_vat_id;
-						  
-            $postData['consumerShippingFirstName'] = $deliveryInformation['firstname'];
-            $postData['consumerShippingLastName']  = $deliveryInformation['lastname'];
-            $postData['consumerShippingAddress1']  = $deliveryInformation['street_address'];
-            $postData['consumerShippingAddress2']  = $deliveryInformation['suburb'];
-            $postData['consumerShippingCity']      = $deliveryInformation['city'];
-            $postData['consumerShippingZipCode']   = $deliveryInformation['postcode'];
-            $postData['consumerShippingState']     = $deliveryState;
-            $postData['consumerShippingCountry']   = $deliveryInformation['country']['iso_code_2'];
-            $postData['consumerShippingPhone']     = $order->customer['telephone'];
+	    $postData['consumerEmail']     = $order->customer['email_address'];
+	    $postData['consumerBirthDate'] = $consumerBirthDate;
+	    $postData['companyName']       = $billingInformation['company'];
+	    $postData['companyVatId']      = $customers_vat_id;
 
-            $postData['consumerBillingFirstName']  = $billingInformation['firstname'];
-            $postData['consumerBillingLastName']   = $billingInformation['lastname'];
-            $postData['consumerBillingAddress1']   = $billingInformation['street_address'];
-            $postData['consumerBillingAddress2']   = $billingInformation['suburb'];
-            $postData['consumerBillingCity']       = $billingInformation['city'];
-            $postData['consumerBillingZipCode']    = $billingInformation['postcode'];
-            $postData['consumerBillingState']      = $billingState;
-            $postData['consumerBillingCountry']    = $billingInformation['country']['iso_code_2'];
-            $postData['consumerBillingPhone']      = $order->customer['telephone'];
-            $postData['consumerEmail']             = $order->customer['email_address'];
-            $postData['consumerBirthDate']         = $consumerBirthDate;
-		}
-		 elseif(in_array($paymentType, array('INVOICE', 'INSTALLMENT'))) {
-		    $postData['companyName']               = $billingInformation['company'];
-            $postData['companyVatId']              = $customers_vat_id;
-
-            $postData['consumerBillingFirstName']  = $billingInformation['firstname'];
-            $postData['consumerBillingLastName']   = $billingInformation['lastname'];
-            $postData['consumerBillingAddress1']   = $billingInformation['street_address'];
-            $postData['consumerBillingAddress2']   = $billingInformation['suburb'];
-            $postData['consumerBillingCity']       = $billingInformation['city'];
-            $postData['consumerBillingZipCode']    = $billingInformation['postcode'];
-            $postData['consumerBillingState']      = $billingState;
-            $postData['consumerBillingCountry']    = $billingInformation['country']['iso_code_2'];
-            $postData['consumerBillingPhone']      = $order->customer['telephone'];
-            $postData['consumerEmail']             = $order->customer['email_address'];
-            $postData['consumerBirthDate']         = $consumerBirthDate;
+	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA == 'True' || in_array( $paymentType,
+			    array( 'INVOICE', 'INSTALLMENT' ) )
+	    ) {
+		    $postData['consumerShippingFirstName'] = $deliveryInformation['firstname'];
+		    $postData['consumerShippingLastName']  = $deliveryInformation['lastname'];
+		    $postData['consumerShippingAddress1']  = $deliveryInformation['street_address'];
+		    $postData['consumerShippingAddress2']  = $deliveryInformation['suburb'];
+		    $postData['consumerShippingCity']      = $deliveryInformation['city'];
+		    $postData['consumerShippingZipCode']   = $deliveryInformation['postcode'];
+		    $postData['consumerShippingState']     = $deliveryState;
+		    $postData['consumerShippingCountry']   = $deliveryInformation['country']['iso_code_2'];
+		    $postData['consumerShippingPhone']     = $order->customer['telephone'];
+	    }
+	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_BILLING_DATA == 'True' || in_array( $paymentType,
+			    array( 'INVOICE', 'INSTALLMENT' ) )
+	    ) {
+		    $postData['consumerBillingFirstName'] = $billingInformation['firstname'];
+		    $postData['consumerBillingLastName']  = $billingInformation['lastname'];
+		    $postData['consumerBillingAddress1']  = $billingInformation['street_address'];
+		    $postData['consumerBillingAddress2']  = $billingInformation['suburb'];
+		    $postData['consumerBillingCity']      = $billingInformation['city'];
+		    $postData['consumerBillingZipCode']   = $billingInformation['postcode'];
+		    $postData['consumerBillingState']     = $billingState;
+		    $postData['consumerBillingCountry']   = $billingInformation['country']['iso_code_2'];
+		    $postData['consumerBillingPhone']     = $order->customer['telephone'];
 	    }
 
-		if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA == 'True') {
-            $basketAmount = 0;
-            $basketCurrency = $qCurrency;
-            $basketItemsCount = 0;	
-				
-		    foreach ($_SESSION['cart']->contents as $productId=>$quantityArray) {
-				$result = xtc_db_query("SELECT p.products_tax_class_id,p.products_price,d.products_name FROM ".TABLE_PRODUCTS." as p JOIN ".TABLE_PRODUCTS_DESCRIPTION." as d ON p.products_id = d.products_id WHERE p.products_id = '" . xtc_db_input($productId) . "'");
-				$product = xtc_db_fetch_array($result);
+	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA == 'True' ) {
+		    $basketItemsCount = 0;
 
-                $basketItemsCount++;
-				$basketAmount += ($product['products_price'] * $quantityArray['qty']);
+		    foreach ( $_SESSION['cart']->contents as $productId => $quantityArray ) {
+			    $result  = xtc_db_query( "SELECT p.products_tax_class_id,p.products_price,d.products_name FROM " . TABLE_PRODUCTS . " as p JOIN " . TABLE_PRODUCTS_DESCRIPTION . " as d ON p.products_id = d.products_id WHERE p.products_id = '" . xtc_db_input( $productId ) . "'" );
+			    $product = xtc_db_fetch_array( $result );
+			    $basketItemsCount ++;
 
-				$tax_rate = $xtPrice->TAX[$product['products_tax_class_id']];
-				
-				if(PRICE_IS_BRUTTO) {
-					$price = $product['products_price'];
-					$tax = $product['products_price']/100 * $tax_rate;
-				}
-				else {
-					$price = ($product['products_price'] / (100+$tax_rate)) * 100;
-					$tax = ($product['products_price'] / (100+$tax_rate)) * $tax_rate;
-				}
-				
-                $postData['basketItem'.$basketItemsCount.'ArticleNumber'] = $productId;
-                $postData['basketItem'.$basketItemsCount.'Description'] = $product['products_name'];
-                $postData['basketItem'.$basketItemsCount.'Quantity'] = $quantityArray['qty'];
-                $postData['basketItem'.$basketItemsCount.'Tax'] = number_format($tax,2);
-                $postData['basketItem'.$basketItemsCount.'UnitPrice'] = number_format($price,2);
+			    $tax_rate = $xtPrice->TAX[ $product['products_tax_class_id'] ];
+			    if ( PRICE_IS_BRUTTO ) {
+				    $price = $product['products_price'];
+				    $tax   = $product['products_price'] / 100 * $tax_rate;
+			    } else {
+				    $price = ( $product['products_price'] / ( 100 + $tax_rate ) ) * 100;
+				    $tax   = ( $product['products_price'] / ( 100 + $tax_rate ) ) * $tax_rate;
+			    }
+
+			    $postData[ 'basketItem' . $basketItemsCount . 'articleNumber' ]   = $productId;
+			    $postData[ 'basketItem' . $basketItemsCount . 'description' ]     = $product['products_name'];
+			    $postData[ 'basketItem' . $basketItemsCount . 'quantity' ]        = $quantityArray['qty'];
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitTaxAmount' ]   = number_format( $tax, 2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitNetAmount' ]   = number_format( $price, 2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitGrossAmount' ] = number_format( $price + $tax, 2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitTaxRate' ]     = $tax_rate;
+			    $postData[ 'basketItem' . $basketItemsCount . 'name' ]            = $product['products_name'];
 		    }
-			
-            $postData['basketAmount'] = number_format($basketAmount,2);
-            $postData['basketCurrency'] = $basketCurrency;
-            $postData['basketItems'] = $basketItemsCount;
-        }
+
+		    if ( isset( $_SESSION['shipping'] ) ) {
+			    $module       = substr( $_SESSION['shipping']['id'], 0, strpos( $_SESSION['shipping']['id'], '_' ) );
+			    $shipping_tax = xtc_get_tax_rate( $GLOBALS[ $module ]->tax_class, $order->delivery['country']['id'],
+				    $order->delivery['zone_id'] );
+			    $tax          = $xtPrice->xtcFormat( xtc_add_tax( $order->info['shipping_cost'], $shipping_tax ), false,
+					    0, false ) - $order->info['shipping_cost'];
+			    $tax          = $xtPrice->xtcFormat( $tax, false, 0, true );
+			    $gross_amount = $_SESSION['shipping']['cost'];
+			    if ( $_SESSION['shipping']['cost'] < $order->info['shipping_cost'] ) {
+				    $gross_amount = $order->info['shipping_cost'];
+			    }
+
+			    $basketItemsCount ++;
+			    $postData[ 'basketItem' . $basketItemsCount . 'articleNumber' ]   = 'shipping';
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitGrossAmount' ] = number_format( $gross_amount, 2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitNetAmount' ]   = number_format( $_SESSION['shipping']['cost'],
+				    2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitTaxRate' ]     = $shipping_tax;
+			    $postData[ 'basketItem' . $basketItemsCount . 'unitTaxAmount' ]   = number_format( $tax, 2 );
+			    $postData[ 'basketItem' . $basketItemsCount . 'name' ]            = $_SESSION['shipping']['title'];
+			    $postData[ 'basketItem' . $basketItemsCount . 'description' ]     = $_SESSION['shipping']['title'];
+			    $postData[ 'basketItem' . $basketItemsCount . 'quantity' ]        = 1;
+		    }
+		    $postData['basketItems'] = $basketItemsCount;
+	    }
 	   
 		// set layout if isset
         if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DEVICE_DETECTION == 'True')
@@ -883,7 +886,7 @@ class wirecard_checkout_page {
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE', 'False', '6', '228', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO', 'False', '6', '230', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_MISTERCASH', 'False', '6', '232', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT', 'False', '6', '232', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EKONTO', 'False', '6', '234', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT', 'False', '6', '236', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY', 'False', '6', '238', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -1020,7 +1023,7 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SKRILLWALLET',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT_MISTERCASH',
+                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_BANCONTACT',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PRZELEWY24',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MONETA',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_POLI',
