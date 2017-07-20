@@ -552,6 +552,29 @@ class wirecard_checkout_page {
 		$content .= '<input id="wirecard_checkout_page_payment" type="hidden" name="wirecard_checkout_page" value="select">';
 		$content .= '</strong></td><td></td></tr></tbody></table></td></tr>';
 
+		$birthday = null;
+		if(!$this->_getCustomersDob()) {
+			$birthday = "<select name='wcp_day' id='wcp_day' class=''>";
+			for ( $day = 31; $day > 0; $day -- ) {
+				$birthday .= "<option value='$day'> $day </option>";
+			}
+
+			$birthday .= "</select>";
+
+			$birthday .= "<select name='wcp_month' id='wcp_month' class=''>";
+			for ( $month = 12; $month > 0; $month -- ) {
+				$birthday .= "<option value='$month'> $month </option>";
+			}
+			$birthday .= "</select>";
+
+			$birthday .= "<select name='wcp_year' id='wcp_year' class=''>";
+			for ( $year = date( "Y" ); $year > 1900; $year -- ) {
+				$birthday .= "<option value='$year'> $year </option>";
+			}
+			$birthday .= "</select>";
+		}
+
+
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True' ) {
 			$count ++;
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SELECT" onclick="selectRowEffectCustomWcp(this)">';
@@ -704,26 +727,62 @@ class wirecard_checkout_page {
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/voucher.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True' ) {
-			if(!$this->_getCustomersDob()) {
-				$birthday = 'noBirthday';
-			} else {
-			    $birthday = $this->_getCustomersDob();
-            }
 			$count ++;
+			$payolutionterms = null;
+			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
+				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
+				$mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
+				$payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
+				if ( strlen( $mId ) ) {
+					$payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
+				} else {
+					$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
+				}
+				$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
+			}
+
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INVOICE" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/invoice.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
-			$content .= '<tr class="wcp-additional" style="display: none"><td class="onepxwidth"></td><td class="main" colspan="3">'.$birthday.'</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			if ( $payolutionterms != null || $birthday != null ) {
+				$content .= '<tr style="display:none" class="wcp-additional"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody>';
+				if ( $birthday != null ) {
+					$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_TEXT .':</b> '. $birthday . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+				}
+				if ( $payolutionterms != null ) {
+					$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_TERMS . ':</b><br/>' . $payolutionterms . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+				}
+				$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			}
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True' ) {
-			if(!$this->_getCustomersDob()) {
-				$birthday = 'noBirthday';
-			} else {
-				$birthday = $this->_getCustomersDob();
-			}
 			$count ++;
+			$payolutionterms = null;
+			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
+				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
+				$mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
+				$payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
+				if ( strlen( $mId ) ) {
+					$payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
+				} else {
+					$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
+				}
+				$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
+			}
+
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INSTALLMENT" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/installment.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
-			$content .= '<tr class="wcp-additional" style="display: none"><td class="onepxwidth"></td><td class="main" colspan="3">'.$birthday.'</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			if ( $payolutionterms != null || $birthday != null ) {
+				$content .= '<tr style="display:none" class="wcp-additional"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody>';
+				if ( $birthday != null ) {
+					$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_TEXT .':</b> '. $birthday . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+				}
+				if ( $payolutionterms != null ) {
+					$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_TERMS . ':</b><br/>' . $payolutionterms . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+				}
+				$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			}
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
 		$content .= '<tr style="display:none;"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody><tr></tr>';

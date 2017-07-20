@@ -243,3 +243,9 @@ define('MODULE_PAYMENT_WCP_ENTRY_VAT_ID', 'Ust-ID:');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ENTRY_VAT_ERROR', 'Die eingegebene Ust-ID ist ung&uuml;ltig.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_ACCEPT_TERMS', 'Bitte willigen Sie der Daten&uuml;bermittlung an payolution ein.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_COMMUNICATION_ERROR', 'Kommunikationsfehler beim Zahlungsdienstleister. Bitte versuchen Sie es erneut.');
+
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1', 'Mit der &Uuml;bermittlung jener Daten an payolution, die f&uuml;r die Abwicklung von Zahlungen mit Kauf auf Rechnung und die Identit&auml;ts- und Bonit&auml;tspr&uuml;fung erforderlich sind, bin ich einverstanden. Meine ');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK', 'Einwilligung');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2', ' kann ich jederzeit mit Wirkung f&uuml;r die Zukunft widerrufen.');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_TERMS', 'payolution Nutzungsbedingungen');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_TEXT', 'Geburtsdatum');
