@@ -319,6 +319,9 @@ class wirecard_checkout_page {
 	    $postData['companyName']       = $billingInformation['company'];
 	    $postData['companyVatId']      = $customers_vat_id;
 
+	    if ( $paymentType == 'MASTERPASS' ) {
+		    $postData['shippingProfile'] = 'NO_SHIPPING';
+        }
 	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_SHIPPING_DATA == 'True' || in_array( $paymentType,
 			    array( 'INVOICE', 'INSTALLMENT' ) )
 	    ) {
@@ -578,7 +581,7 @@ class wirecard_checkout_page {
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True' ) {
 			$count ++;
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="SELECT" onclick="selectRowEffectCustomWcp(this)">';
-			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/ccard.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT . '</b></td><td class="main" align="right"><strong></strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD == 'True' ) {

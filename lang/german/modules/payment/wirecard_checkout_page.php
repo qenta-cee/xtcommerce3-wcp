@@ -151,7 +151,7 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID_DESC', 'payolution-H&auml;ndle
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TEXT_INSTALLMENT', 'Mit der &Uuml;bermittlung der f&uuml;r die Abwicklung des Ratenkaufes und einer Identit&auml;ts- und Bonit&auml;tspr&uuml;fung erforderlichen Daten an payolution bin ich einverstanden. Meine <a href="%s" target="_blank"><strong>Einwilligung</strong></a> kann ich jederzeit mit Wirkung f&uuml;r die Zukunft widerrufen.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TEXT_INVOICE', 'Mit der &Uuml;bermittlung der f&uuml;r die Abwicklung des Rechnungskaufes und einer Identit&auml;ts- und Bonit&auml;tspr&uuml;fung erforderlichen Daten an payolution bin ich einverstanden. Meine <a href="%s" target="_blank"><strong>Einwilligung</strong></a> kann ich jederzeit mit Wirkung f&uuml;r die Zukunft widerrufen.');
 
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT', 'Select');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT', 'Wirecard Checkout Page');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT','Kreditkarte');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT', 'Masterpass');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT','Maestro SecureCode');
