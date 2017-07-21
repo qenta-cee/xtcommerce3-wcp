@@ -97,8 +97,8 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTPAY_DESC','Enable paym
 
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TITLE', 'payolution terms');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_DESC', 'Consumer must accept payolution terms during the checkout process.');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_MID_TITLE', 'payolution mID');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_MID_DESC', 'Your payolution merchant ID, non-base64-encoded.');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID_TITLE', 'payolution mID');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID_DESC', 'Your payolution merchant ID, non-base64-encoded.');
 
 
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT_TEXT_INSTALLMENT', 'I agree that the data which are necessary for the liquidation of installments and which are used to complete the identity and credit check are transmitted to payolution.  My <a href="%s" target="_blank"><strong>consent</strong></a> can be revoked at any time with future effect.');
@@ -147,6 +147,7 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_ID_DESC','Set the sta
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_PENDING_ID_TITLE','Set order status pending');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_PENDING_ID_DESC','Set the status of orders made with this payment module which are in payment state pending.');
 
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TEXT', 'Select');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TEXT','Credit Card');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT','Masterpass');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MAESTRO_TEXT','Maestro SecureCode');

@@ -346,7 +346,9 @@ class wirecard_checkout_page {
 		    $postData['consumerBillingPhone']     = $order->customer['telephone'];
 	    }
 
-	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA == 'True' ) {
+	    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SEND_CART_DATA == 'True' ||
+	         ( $paymentType == 'INVOICE' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER != 'payolution' ) ||
+	         ( $paymentType == 'INSTALLMENT' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER != 'payolution' )) {
 		    $basketItemsCount = 0;
 
 		    foreach ( $_SESSION['cart']->contents as $productId => $quantityArray ) {
@@ -597,7 +599,7 @@ class wirecard_checkout_page {
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_MASTERPASS_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/masterpass.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
-		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO == 'True' ) {
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO == 'True' && $this->_preCc_MotoCheck()) {
 			if ( $this->_preCc_MotoCheck() ) {
 				$count ++;
 				$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="CCARD-MOTO" onclick="selectRowEffectCustomWcp(this)">';
@@ -732,21 +734,11 @@ class wirecard_checkout_page {
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="VOUCHER" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_VOUCHER_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/voucher.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
-		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True' ) {
+		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True' && $this->_preInvoiceCheck()) {
 			$count ++;
 			$birthday = $this->create_birthday_fields('invoice');
-			$payolutionterms = null;
-			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
-				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
-				$mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
-				$payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
-				if ( strlen( $mId ) ) {
-					$payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
-				} else {
-					$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
-				}
-				$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
-			}
+			$payolutionterms = $this->create_payolution_terms('invoice');
+
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INVOICE" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/invoice.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
 			if ( $payolutionterms != null || $birthday != null ) {
@@ -764,18 +756,7 @@ class wirecard_checkout_page {
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True' ) {
 			$count ++;
 			$birthday = $this->create_birthday_fields('installment');
-			$payolutionterms = null;
-			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
-				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
-				$mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
-				$payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
-				if ( strlen( $mId ) ) {
-					$payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
-				} else {
-					$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
-				}
-				$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
-			}
+			$payolutionterms = $this->create_payolution_terms('installment');
 
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INSTALLMENT" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/installment.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
@@ -847,75 +828,95 @@ class wirecard_checkout_page {
     }
 
     /*
+     * Creates payolution text
+     *
+     * return string
+     */
+    function create_payolution_terms($paymentType) {
+	    $payolutionterms = null;
+	    if( $paymentType == 'invoice') {
+		    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
+			    $terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
+			    $mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
+			    $payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
+			    if ( strlen( $mId ) ) {
+				    $payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
+			    } else {
+				    $payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
+			    }
+			    $payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
+		    }
+	    }
+	    if( $paymentType == 'installment') {
+		    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
+			    $terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
+			    $mId             = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID;
+			    $payolutionterms = '<input type="checkbox" name="wcp_payolutionterms"/>&nbsp;<span>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT1;
+			    if ( strlen( $mId ) ) {
+				    $payolutionterms .= '<a id="wcp-payolutionlink" href="https://payment.payolution.com/payolution-payment/infoport/dataprivacyconsent?mId=' . $mId . '" target="_blank"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK . '</b></a>';
+			    } else {
+				    $payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_LINK;
+			    }
+			    $payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
+		    }
+	    }
+	    return $payolutionterms;
+    }
+
+    /*
      * @return bool
      */
     function _preInvoiceCheck() {
-        global $order, $customer, $xtPrice;
+        global $order, $xtPrice;
 
         $currency = $order->info['currency'];
         $total = $order->info['total'];
         $amount = round($xtPrice->xtcCalculateCurrEx($total,$currency), $xtPrice->get_decimal_places($currency));
         
-        $country_code = $order->billing['country']['iso_code_2'];    
+        $country_code = $order->billing['country']['iso_code_2'];
+        $countries = explode( ",",MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_COUNTRIES);
+        $currencies = explode( ",",MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_CURRENCIES);
 		$invoice_min_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MIN_AMOUNT;
-		$invoice_max_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MAX_AMOUNT;		
-		//check if age is already available
-		//send true if no age is available, then show age field in payment selection form
-		if($this->_getCustomersDob()) {
-			$ageCheck = $this->_preAgeCheck();
-		}
-		else {
-			$ageCheck = true;
-		}
-        return ($ageCheck && 
-		(($amount >= $invoice_min_amount || empty($invoice_min_amount)) && ($amount <= $invoice_max_amount || ((empty($invoice_max_amount) && $invoice_max_amount !== "0")))) &&
-        ($currency == 'EUR') &&
-        (in_array($country_code, Array('AT', 'DE', 'CH'))) &&
-        ($order->delivery === $order->billing));
+		$invoice_max_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_MAX_AMOUNT;
+
+		if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_SHIPPING == 'True') {
+			if($order->delivery !== $order->billing) {
+			    return false;
+            }
+        }
+
+        return (( ($amount >= $invoice_min_amount || empty($invoice_min_amount)) && ($amount <= $invoice_max_amount || ((empty($invoice_max_amount) && $invoice_max_amount !== "0")))) &&
+                ( in_array( $currency, $currencies ) && strlen( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_CURRENCIES ) ) &&
+                ( in_array( $country_code, $countries ) && strlen( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_COUNTRIES ) ));
     }
 
     /*
      * @return bool
      */
     function _preInstallmentCheck() {
-        global $order, $customer, $xtPrice;
+	    global $order, $xtPrice;
 
-        $currency = $order->info['currency'];
-        $total = $order->info['total'];
-        $amount = round($xtPrice->xtcCalculateCurrEx($total,$currency), $xtPrice->get_decimal_places($currency));
+	    $currency = $order->info['currency'];
+	    $total = $order->info['total'];
+	    $amount = round($xtPrice->xtcCalculateCurrEx($total,$currency), $xtPrice->get_decimal_places($currency));
 
-        $country_code = $order->billing['country']['iso_code_2'];
-		$installment_min_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MIN_AMOUNT;
-		$installment_max_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MAX_AMOUNT;		
-		//check if age is already available
-		//send true if no age is available, then show age field in payment selection form
-		if($this->_getCustomersDob()) {
-			$ageCheck = $this->_preAgeCheck();
-		}
-		else {
-			$ageCheck = true;
-		}
-        return ($ageCheck && 
-		    (($amount >= $installment_min_amount || empty($installment_min_amount)) && ($amount <= $installment_max_amount || ((empty($installment_max_amount) && $installment_max_amount !== "0")))) &&
-            ($currency == 'EUR') &&
-            (in_array($country_code, Array('AT', 'DE', 'CH'))) &&
-            ($order->delivery === $order->billing));
+	    $country_code = $order->billing['country']['iso_code_2'];
+	    $countries = explode( ",",MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_COUNTRIES);
+	    $currencies = explode( ",",MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_CURRENCIES);
+	    $invoice_min_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MIN_AMOUNT;
+	    $invoice_max_amount = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_MAX_AMOUNT;
+
+	    if (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_SHIPPING == 'True') {
+		    if($order->delivery !== $order->billing) {
+			    return false;
+		    }
+	    }
+
+	    return (( ($amount >= $invoice_min_amount || empty($invoice_min_amount)) && ($amount <= $invoice_max_amount || ((empty($invoice_max_amount) && $invoice_max_amount !== "0")))) &&
+	            ( in_array( $currency, $currencies ) && strlen( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_CURRENCIES ) ) &&
+	            ( in_array( $country_code, $countries ) && strlen( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_COUNTRIES ) ));
     }
 
-	/*
-     * @return bool
-     */
-    function _preAgeCheck() {
-		
-        $consumerID = xtc_session_is_registered('customer_id') ? $_SESSION['customer_id'] : "";
-		$sql = 'SELECT (COUNT(*) > 0) as cnt FROM ' . TABLE_CUSTOMERS .' WHERE DATEDIFF(NOW(), customers_dob) > 6574 AND customers_id="' . xtc_db_input($consumerID) . '"';
-        $result = mysql_fetch_assoc(xtc_db_query($sql));
-
-        $ageCheck = (bool) $result['cnt'];
-
-        return ($ageCheck);
-    }
-	
     /*
      * @return bool
      */
@@ -1126,7 +1127,7 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, use_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_PENDING_ID', '1', '6', '430', 'xtc_cfg_pull_down_order_statuses(', 'xtc_get_order_status_name', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DEVICE_DETECTION', 'False', '6', '331', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT', 'False', '6', '332', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_MID', '', '6', '333', now())");
+        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID', '', '6', '333', now())");
 
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DUPLICATE_REQUEST_CHECK', 'False', '6', '340', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_AUTO_DEPOSIT', 'False', '6', '341', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -1258,6 +1259,7 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ZONE',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DEVICE_DETECTION',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT',
+	                'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_MID',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DUPLICATE_REQUEST_CHECK',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_AUTO_DEPOSIT',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CONFIRMATION_MAIL',
