@@ -49,7 +49,65 @@ class wirecard_checkout_page {
     var $toolkitPasswordDemoMode = 'jcv45z';
 	
 	var $customerStatementLength = 23; //9x prefix, 1x whitespace, 1x id: char, 10x OrderID
-		
+
+	/**
+	 * eps financial institutions
+	 *
+	 * @var array
+	 */
+	protected static $_eps_financial_institutions = Array(
+		Array( 'id' => 'ARZ|AB', 'text' => 'Apothekerbank'),
+		Array( 'id' => 'ARZ|AAB', 'text' => 'Austrian Anadi Bank AG'),
+		Array( 'id' => 'ARZ|BAF', 'text' => '&Auml;rztebank'),
+		Array( 'id' => 'BA-CA', 'text' => 'Bank Austria'),
+		Array( 'id' => 'ARZ|BCS', 'text' => 'Bankhaus Carl Sp&auml;ngler & Co. AG'),
+		Array( 'id' => 'ARZ|BSS', 'text' => 'Bankhaus Schelhammer & Schattera AG'),
+		Array( 'id' => 'Bawag|BG', 'text' => 'BAWAG P.S.K. AG'),
+		Array( 'id' => 'ARZ|BKS', 'text' => 'BKS Bank AG'),
+		Array( 'id' => 'ARZ|BKB', 'text' => 'Br&uuml;ll Kallmus Bank AG'),
+		Array( 'id' => 'ARZ|BTV', 'text' => 'BTV VIER L&Auml;NDER BANK'),
+		Array( 'id' => 'ARZ|CBGG', 'text' => 'Capital Bank Grawe Gruppe AG'),
+		Array( 'id' => 'ARZ|VB', 'text' => 'Volksbank Gruppe'),
+		Array( 'id' => 'ARZ|DB', 'text' => 'Dolomitenbank'),
+		Array( 'id' => 'Bawag|EB', 'text' => 'Easybank AG'),
+		Array( 'id' => 'Spardat|EBS', 'text' => 'Erste Bank und Sparkassen'),
+		Array( 'id' => 'ARZ|HAA', 'text' => 'Hypo Alpe-Adria-Bank International AG'),
+		Array( 'id' => 'ARZ|VLH', 'text' => 'Hypo Landesbank Vorarlberg'),
+		Array( 'id' => 'ARZ|HI', 'text' => 'HYPO NOE Gruppe Bank AG'),
+		Array( 'id' => 'ARZ|NLH', 'text' => 'HYPO NOE Landesbank AG'),
+		Array( 'id' => 'Hypo-Racon|O', 'text' => 'Hypo Ober&ouml;sterreich'),
+		Array( 'id' => 'Hypo-Racon|S', 'text' => 'Hypo Salzburg'),
+		Array( 'id' => 'Hypo-Racon|St', 'text' => 'Hypo Steiermark'),
+		Array( 'id' => 'ARZ|HTB', 'text' => 'Hypo Tirol Bank AG'),
+		Array( 'id' => 'BB-Racon', 'text' => 'HYPO-BANK BURGENLAND Aktiengesellschaft'),
+		Array( 'id' => 'ARZ|IB', 'text' => 'Immo-Bank'),
+		Array( 'id' => 'ARZ|OB', 'text' => 'Oberbank AG'),
+		Array( 'id' => 'Racon', 'text' => 'Raiffeisen Bankengruppe &Ouml;sterreich'),
+		Array( 'id' => 'ARZ|SB', 'text' => 'Schoellerbank AG'),
+		Array( 'id' => 'Bawag|SBW', 'text' => 'Sparda Bank Wien'),
+		Array( 'id' => 'ARZ|SBA', 'text' => 'SPARDA-BANK AUSTRIA'),
+		Array( 'id' => 'ARZ|VKB', 'text' => 'Volkskreditbank AG'),
+		Array( 'id' => 'ARZ|VRB', 'text' => 'VR-Bank Braunau')
+	);
+
+	/**
+	 * idl financial institutions
+	 *
+	 * @var array
+	 */
+	protected static $_idl_financial_institutions = Array(
+		Array( 'id' => 'ABNAMROBANK', 'text' => 'ABN AMRO Bank'),
+		Array( 'id' => 'ASNBANK', 'text' => 'ASN Bank'),
+		Array( 'id' => 'BUNQ', 'text' => 'Bunq Bank'),
+		Array( 'id' => 'INGBANK', 'text' => 'ING'),
+		Array( 'id' => 'KNAB', 'text' => 'knab'),
+		Array( 'id' => 'RABOBANK', 'text' => 'Rabobank'),
+		Array( 'id' => 'SNSBANK', 'text' => 'SNS Bank'),
+		Array( 'id' => 'REGIOBANK', 'text' => 'RegioBank'),
+		Array( 'id' => 'TRIODOSBANK', 'text' => 'Triodos Bank'),
+		Array( 'id' => 'VANLANSCHOT', 'text' => 'Van Lanschot Bankiers')
+	);
+
     /**
      * confirmation debug-log.
      * Use this for debug useage only!
@@ -340,6 +398,10 @@ class wirecard_checkout_page {
 		    }
 		    $postData['basketItems'] = $basketItemsCount;
 	    }
+
+	    if (isset($_SESSION['wirecard_checkout_page']['financialInstitution'])) {
+	        $postData['financialInstitution'] = $_SESSION['wirecard_checkout_page']['financialInstitution'];
+        }
 	   
 		// set layout if isset
         if(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_DEVICE_DETECTION == 'True')
@@ -546,13 +608,21 @@ class wirecard_checkout_page {
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS == 'True' ) {
 			$count ++;
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="EPS" onclick="selectRowEffectCustomWcp(this)">';
-			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/eps.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPS_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/eps.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<tr style="display:none" class="wcp-additional"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody>';
+			$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_FINANCIALINSTITUTIONS .':</b> '. xtc_draw_pull_down_menu("eps_financial_institutions", self::$_eps_financial_institutions, '', '', false) . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL == 'True' ) {
 			$count ++;
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="IDL" onclick="selectRowEffectCustomWcp(this)">';
-			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/idl.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/idl.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '<tr style="display:none" class="wcp-additional"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table><tbody>';
+			$content .= '<tr><td class="onepxwidth"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_FINANCIALINSTITUTIONS .':</b> '. xtc_draw_pull_down_menu("idl_financial_institutions", self::$_idl_financial_institutions, '', '', false) . '</td><td class="main" align="right"></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
+			$content .= '</tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY == 'True' ) {
@@ -960,6 +1030,13 @@ class wirecard_checkout_page {
 					    'SSL', true, false ) );
 			    }
 		    }
+	    }
+
+	    if('EPS' === $_SESSION['wirecard_checkout_page']['payMethod']) {
+	        $_SESSION['wirecard_checkout_page']['financialInstitution'] = $_POST['eps_financial_institutions'];
+	    }
+	    if('IDL' === $_SESSION['wirecard_checkout_page']['payMethod']) {
+		    $_SESSION['wirecard_checkout_page']['financialInstitution'] = $_POST['idl_financial_institutions'];
 	    }
         return false;
     }
