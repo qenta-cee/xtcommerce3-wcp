@@ -382,47 +382,6 @@ class wirecard_checkout_page {
 		if(isset($_POST["wirecard_checkout_page"])) {
 			$_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
 		}
-
-		if(('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod'] || 'INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod'])&& isset($_POST["customers_dob"])) {
-			if (checkdate(substr(xtc_date_raw($_POST["customers_dob"]), 4, 2), substr(xtc_date_raw($_POST["customers_dob"]), 6, 2), substr(xtc_date_raw($_POST["customers_dob"]), 0, 4)))
-			{
-				$_SESSION['wirecard_checkout_page']['customers_dob'] = $_POST["customers_dob"];
-				$consumerID = xtc_session_is_registered('customer_id') ? $_SESSION['customer_id'] : "";
-				$sql = 'UPDATE ' . TABLE_CUSTOMERS .' SET customers_dob = "'.xtc_db_prepare_input($_POST["customers_dob"]).'" WHERE customers_id="' . xtc_db_input($consumerID) . '"';
-
-				$result = mysql_fetch_assoc(xtc_db_query($sql));
-			}
-			else {
-				xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(ENTRY_DATE_OF_BIRTH_ERROR), 'SSL'));
-			}
-		}
-		if(('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod']) && isset($_POST["customers_vat_id"]) && $this->_customerIsMerchant()) {
-			if(!empty($_POST["customers_vat_id"])) {
-				$consumerID = xtc_session_is_registered('customer_id') ? $_SESSION['customer_id'] : "";
-				$sql = 'UPDATE ' . TABLE_CUSTOMERS .' SET customers_vat_id = "'.xtc_db_prepare_input($_POST["customers_vat_id"]).'" WHERE customers_id="' . xtc_db_input($consumerID) . '"';
-
-				$result = mysql_fetch_assoc(xtc_db_query($sql));
-			}
-			else
-				xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ENTRY_VAT_ERROR), 'SSL'));
-		}    
-			
-		if('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod'] && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' && (!isset($_POST['wcp_accepted_payolution_terms_invoice']) || $_POST['wcp_accepted_payolution_terms_invoice'] != 1)) {
-			xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_ACCEPT_TERMS), 'SSL'));
-		}	
-				
-		if('INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod'] && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' && (!isset($_POST['wcp_accepted_payolution_terms_installment']) || $_POST['wcp_accepted_payolution_terms_installment'] != 1)) {
-			xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_ACCEPT_TERMS), 'SSL'));
-		}	
-
-		//check if paymethod is allowed
-		if('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod'] && !$this->_preInvoiceCheck()) {
-			xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYMETHOD_NOT_ALLOWED), 'SSL'));
-		}
-		
-		if('INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod'] && !$this->_preInstallmentCheck()) {
-			xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYMETHOD_NOT_ALLOWED), 'SSL'));
-		}	
 	}
 
     /// @brief unset temp order id from session
@@ -551,29 +510,6 @@ class wirecard_checkout_page {
 		$count   = 0;
 		$content .= '<input id="wirecard_checkout_page_payment" type="hidden" name="wirecard_checkout_page" value="select">';
 		$content .= '</strong></td><td></td></tr></tbody></table></td></tr>';
-
-		$birthday = null;
-		if(!$this->_getCustomersDob()) {
-			$birthday = "<select name='wcp_day' id='wcp_day' class=''>";
-			for ( $day = 31; $day > 0; $day -- ) {
-				$birthday .= "<option value='$day'> $day </option>";
-			}
-
-			$birthday .= "</select>";
-
-			$birthday .= "<select name='wcp_month' id='wcp_month' class=''>";
-			for ( $month = 12; $month > 0; $month -- ) {
-				$birthday .= "<option value='$month'> $month </option>";
-			}
-			$birthday .= "</select>";
-
-			$birthday .= "<select name='wcp_year' id='wcp_year' class=''>";
-			for ( $year = date( "Y" ); $year > 1900; $year -- ) {
-				$birthday .= "<option value='$year'> $year </option>";
-			}
-			$birthday .= "</select>";
-		}
-
 
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT == 'True' ) {
 			$count ++;
@@ -728,6 +664,7 @@ class wirecard_checkout_page {
 		}
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True' ) {
 			$count ++;
+			$birthday = $this->create_birthday_fields('invoice');
 			$payolutionterms = null;
 			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
 				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
@@ -740,7 +677,6 @@ class wirecard_checkout_page {
 				}
 				$payolutionterms .= MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_CONSENT2 . '</span>';
 			}
-
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="INVOICE" onclick="selectRowEffectCustomWcp(this)">';
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/invoice.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr>';
 			if ( $payolutionterms != null || $birthday != null ) {
@@ -757,6 +693,7 @@ class wirecard_checkout_page {
 		}
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True' ) {
 			$count ++;
+			$birthday = $this->create_birthday_fields('installment');
 			$payolutionterms = null;
 			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True' ) {
 				$terms           = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TERMS;
@@ -808,6 +745,36 @@ class wirecard_checkout_page {
 			'module' => $content
 		);
 	}
+
+	/*
+	 * Creates birthday fields
+	 *
+	 * @retrun string
+	 */
+	function create_birthday_fields($paymentType) {
+		$birthday = null;
+		if(!$this->_getCustomersDob()) {
+			$birthday = '<select name="'.$paymentType.'_wcp_day" id="wcp_day">';
+			for ( $day = 31; $day > 0; $day -- ) {
+				$birthday .= '<option value="'.$day.'"> '.$day.' </option>';
+			}
+
+			$birthday .= '</select>';
+
+			$birthday .= '<select name="'.$paymentType.'_wcp_month" id="wcp_month">';
+			for ( $month = 12; $month > 0; $month -- ) {
+				$birthday .= '<option value="'.$month.'"> '.$month.' </option>';
+			}
+			$birthday .= '</select>';
+
+			$birthday .= '<select name="'.$paymentType.'_wcp_year" id="wcp_year">';
+			for ( $year = date( "Y" ); $year > 1900; $year -- ) {
+				$birthday .= '<option value="'.$year.'"> '.$year.' </option>';
+			}
+			$birthday .= '</select>';
+		}
+		return $birthday;
+    }
 
     /*
      * @return bool
@@ -928,6 +895,72 @@ class wirecard_checkout_page {
 	
     function pre_confirmation_check()
     {
+	    if(isset($_POST["wirecard_checkout_page"])) {
+		    $_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
+	    }
+
+	    if('INSTALLMENT' === $_SESSION['wirecard_checkout_page']['payMethod']) {
+			if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True'  && !isset($_POST['wcp_payolutionterms'])) {
+				xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_ACCEPT_TERMS), 'SSL', true, false));
+			}
+
+		    $maxDate  = ( date( 'Y' ) - 18 ) . "-" . date( 'm' ) . "-" . date( 'd' );
+		    if(!$this->_getCustomersDob()) {
+			    $day      = $_POST['installment_wcp_day'];
+			    $month    = $_POST['installment_wcp_month'];
+			    $year     = $_POST['installment_wcp_year'];
+			    $birthday = new DateTime($year . "-" . $month . "-" . $day);
+			    $birthday = $birthday->format('Y-m-d');
+			    if ( $birthday > $maxDate ) {
+				    xtc_redirect( xtc_href_link( FILENAME_CHECKOUT_PAYMENT,
+					    'error_message=' . urlencode( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_ERROR_TEXT ),
+					    'SSL', true, false ) );
+			    } else {
+				    $customDob = $birthday . ' 00:00:00';
+				    $consumerID = xtc_session_is_registered('customer_id') ? $_SESSION['customer_id'] : "";
+				    xtc_db_query("UPDATE " .TABLE_CUSTOMERS . " SET customers_dob='". ($customDob). "' WHERE customers_id = '". xtc_db_input($consumerID)."'");
+			    }
+		    } else {
+			    $consumerBirthDateTimestamp = strtotime($this->_getCustomersDob());
+			    $consumerBirthDate = date('Y-m-d', $consumerBirthDateTimestamp);
+			    if ( $consumerBirthDate > $maxDate ) {
+				    xtc_redirect( xtc_href_link( FILENAME_CHECKOUT_PAYMENT,
+					    'error_message=' . urlencode( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_ERROR_TEXT ),
+					    'SSL', true, false ) );
+			    }
+		    }
+		}
+	    if('INVOICE' === $_SESSION['wirecard_checkout_page']['payMethod']) {
+		    if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'payolution' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOW_PAYOLUTION_INFOTEXT == 'True'  && !isset($_POST['wcp_payolutionterms'])) {
+			    xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, 'error_message='.urlencode(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYOLUTION_ACCEPT_TERMS), 'SSL', true, false));
+		    }
+
+		    $maxDate  = ( date( 'Y' ) - 18 ) . "-" . date( 'm' ) . "-" . date( 'd' );
+		    if(!$this->_getCustomersDob()) {
+			    $day      = $_POST['invoice_wcp_day'];
+			    $month    = $_POST['invoice_wcp_month'];
+			    $year     = $_POST['invoice_wcp_year'];
+			    $birthday = new DateTime($year . "-" . $month . "-" . $day);
+			    $birthday = $birthday->format('Y-m-d');
+			    if ( $birthday > $maxDate ) {
+				    xtc_redirect( xtc_href_link( FILENAME_CHECKOUT_PAYMENT,
+					    'error_message=' . urlencode( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_ERROR_TEXT ),
+					    'SSL', true, false ) );
+			    } else {
+			        $customDob = $birthday . ' 00:00:00';
+				    $consumerID = xtc_session_is_registered('customer_id') ? $_SESSION['customer_id'] : "";
+				    xtc_db_query("UPDATE " .TABLE_CUSTOMERS . " SET customers_dob='". ($customDob). "' WHERE customers_id = '". xtc_db_input($consumerID)."'");
+			    }
+		    } else {
+                $consumerBirthDateTimestamp = strtotime($this->_getCustomersDob());
+                $consumerBirthDate = date('Y-m-d', $consumerBirthDateTimestamp);
+			    if ( $consumerBirthDate > $maxDate ) {
+				    xtc_redirect( xtc_href_link( FILENAME_CHECKOUT_PAYMENT,
+					    'error_message=' . urlencode( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_BIRTHDAY_ERROR_TEXT ),
+					    'SSL', true, false ) );
+			    }
+		    }
+	    }
         return false;
     }
 
