@@ -360,7 +360,12 @@ class wirecard_checkout_page {
 			    $basketItemsCount ++;
 
 			    $tax_rate = $xtPrice->TAX[ $product['products_tax_class_id'] ];
-			    if ( PRICE_IS_BRUTTO ) {
+			    if( $product['products_tax_class_id'] == 0 ){
+				    $price = $product['products_price'];
+				    $tax_rate = 0;
+				    $tax = 0;
+			    }
+			    else if ( PRICE_IS_BRUTTO ) {
 				    $price = $product['products_price'];
 				    $tax   = $product['products_price'] / 100 * $tax_rate;
 			    } else {
