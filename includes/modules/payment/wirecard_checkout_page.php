@@ -30,7 +30,7 @@
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TOOLKIT_URL','https://checkout.wirecard.com/page/toolkit.php'); 
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_REDIRECT','checkout_wirecard_checkout_page.php');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_IFRAME','wirecard_checkout_page_iframe.php');
-  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.11.0');
+  define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINVERSION', '1.11.1');
   define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGINNAME', 'xtCommerce3');
   define('MODULE_PAYMENT_WIRECARD_REDIRECT_TIMEOUT_SECOUNDS', 2);
   
@@ -257,25 +257,9 @@ class wirecard_checkout_page {
 		elseif(strlen($customerStatementString) > $customerStatementLength)
 			$customerStatementString = substr(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMER_STATEMENT,0,$customerStatementLength-14).' id:'.$orderReference;
 
-		
-		switch(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE) {
-            case 'Demo':
-                $preshared_key = $this->secretDemoMode;
-                $customerId = $this->customerIdDemoMode;
-                break;
-            case 'Test':
-                $preshared_key = $this->secretTestMode;
-                $customerId = $this->customerIdTestMode;
-                break;
-            case 'Test3D':
-                $preshared_key = $this->secretTest3DMode;
-                $customerId = $this->customerIdTestMode;
-            case 'Live':
-            default:
-                $preshared_key = trim(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET);
-                $customerId = trim(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMERID);
-                break;
-        }
+		$config = $this->get_plugin_config();
+		$preshared_key = $config['secret'];
+        $customerId = $config['customerId'];
 
         $postData = Array('customerId'                   => $customerId,
                           'language'                     => $qLanguage,
@@ -313,6 +297,11 @@ class wirecard_checkout_page {
                           'pluginVersion'                => $pluginVersion,
                           'consumerMerchantCrmId'        => md5($order->customer['email_address']),
 						 );
+
+        if ( isset( $_SESSION['wcp-consumerDeviceId'] ) ) {
+            $postData['consumerDeviceId'] = $_SESSION['wcp-consumerDeviceId'];
+            unset( $_SESSION['wcp-consumerDeviceId'] );
+        }
 
 	    $postData['consumerEmail']     = $order->customer['email_address'];
 	    $postData['consumerBirthDate'] = $consumerBirthDate;
@@ -442,7 +431,29 @@ class wirecard_checkout_page {
 
         return $postData;
     }
-	
+
+    /// @brief get secret and customerid
+    function get_plugin_config() {
+	    switch(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PLUGIN_MODE) {
+		    case 'Demo':
+			    $preshared_key = $this->secretDemoMode;
+			    $customerId = $this->customerIdDemoMode;
+			    break;
+		    case 'Test':
+			    $preshared_key = $this->secretTestMode;
+			    $customerId = $this->customerIdTestMode;
+			    break;
+		    case 'Test3D':
+			    $preshared_key = $this->secretTest3DMode;
+			    $customerId = $this->customerIdTestMode;
+		    case 'Live':
+		    default:
+			    $preshared_key = trim(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET);
+			    $customerId = trim(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_CUSTOMERID);
+			    break;
+	    }
+	    return array('secret' => $preshared_key, 'customerId' => $customerId);
+    }
 	
 	/// @brief nothing to do for update_status
     function update_status() {
@@ -454,6 +465,21 @@ class wirecard_checkout_page {
 		if(isset($_POST["wirecard_checkout_page"])) {
 			$_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
 		}
+	    $config = $this->get_plugin_config();
+	    $customer_id = $config['customerId'];
+
+	    if( isset( $_SESSION['wcp-consumerDeviceId'] ) ) {
+		    $consumerDeviceId = $_SESSION['wcp-consumerDeviceId'];
+	    } else {
+		    $timestamp = microtime();
+		    $consumerDeviceId = md5( $customer_id . "_" . $timestamp );
+		    $_SESSION['wcp-consumerDeviceId'] = $consumerDeviceId;
+	    }
+	    $ratepay = '<script language="JavaScript">var di = {t:"' . $consumerDeviceId . '",v:"WDWL",l:"Checkout"};</script>';
+	    $ratepay .= '<script type="text/javascript" src="//d.ratepay.com/' . $consumerDeviceId . '/di.js"></script>';
+	    $ratepay .= '<noscript><link rel="stylesheet" type="text/css" href="//d.ratepay.com/di.css?t=' . $consumerDeviceId . '&v=WDWL&l=Checkout"></noscript>';
+	    $ratepay .= '<object type="application/x-shockwave-flash" data="//d.ratepay.com/WDWL/c.swf" width="0" height="0"><param name="movie" value="//d.ratepay.com/WDWL/c.swf" /><param name="flashvars" value="t=' . $consumerDeviceId . '&v=WDWL"/><param name="AllowScriptAccess" value="always"/></object>';
+	    echo $ratepay;
 	}
 
     /// @brief unset temp order id from session
