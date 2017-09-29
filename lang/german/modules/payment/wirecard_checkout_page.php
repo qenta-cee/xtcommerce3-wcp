@@ -38,7 +38,7 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SHOPID_DESC','Shop-Kennung bei meh
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET_TITLE','Secret');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_SECRET_DESC','Geheime Zeichenfolge, die Sie von Wirecard erhalten haben, zum Signieren und Validieren von Daten zur Pr&uuml;fung der Authentizit&auml;t.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_TITLE','Iframe verwenden');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_DESC','Startet den Wirecard Checkout Page Zahlungsprozess in einem Iframe innerhalb des Shops. <strong>Hinweis:</strong> F&uuml;r PayPal und Sofort&uuml;berweisung wird immer eine Weiterleitung verwendet.');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_USE_IFRAME_DESC','Startet den Wirecard Checkout Page Zahlungsprozess in einem Iframe innerhalb des Shops. <strong>Hinweis:</strong> F&uuml;r PayPal und Sofort. wird immer eine Weiterleitung verwendet.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_TITLE','Zahlungsmittel SELECT');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SELECT_DESC','Die Zahlungsmittelauswahl erfolgt auf der Wirecard Checkout Page. Wenn aktiviert, werden keine weiteren Zahlungsmittel der Wirecard Checkout Page im Shop angezeigt.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_TITLE','Kreditkarte');
@@ -59,8 +59,8 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TITLE','SEPA Lastsc
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_DESC','Zahlungsmittel SEPA Lastschrift aktivieren?');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TITLE', 'PayPal');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_DESC','Zahlungsmittel Paypal aktivieren?');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TITLE', 'SOFORT &Uuml;berweisung');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_DESC','Zahlungsmittel SOFORT &Uuml;berweisung aktivieren?');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TITLE', 'Sofort.');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_DESC','Zahlungsmittel Sofort. aktivieren?');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TITLE','iDEAL');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_DESC','Zahlungsmittel iDEAL aktivieren?');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY_TITLE','giropay');
@@ -163,7 +163,7 @@ define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD_TEXT','SEPA Lastsch
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_IDL_TEXT','iDEAL');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL_TEXT','PayPal');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_GIROPAY_TEXT','giropay');
-define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TEXT','sofort&uuml;berweisung.de');
+define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG_TEXT','Sofort.');
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE_TEXT','Kauf auf Rechnung');
 
 define('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_CCARD_MOTO_TEXT','Kreditkarte - Post / Telefonbestellung');
