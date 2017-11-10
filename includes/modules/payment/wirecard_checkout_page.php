@@ -739,12 +739,6 @@ class wirecard_checkout_page {
 			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/psc.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
 		}
 
-		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK == 'True' ) {
-			$count ++;
-			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="QUICK" onclick="selectRowEffectCustomWcp(this)">';
-			$content .= '<td class="onepxwidth"><input type="radio" name="payment" value="wirecard_checkout_page"></td><td class="main" colspan="3"><b>' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK_TEXT . '</b></td><td class="main" align="right"><strong>' . xtc_image( DIR_WS_ICONS . '/wcp/quick.png' ) . '</strong></td><td class="onepxwidth">&nbsp;</td></tr></tbody></table></td><td class="onepxwidth">&nbsp;</td></tr>';
-		}
-
 		if ( MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL == 'True' ) {
 			$count ++;
 			$content .= '<tr id="tr_wirecard_checkout_page_' . $count . '"><td class="onepxwidth">&nbsp;</td><td colspan="2"><table id="wirecard_checkout_page_' . $count . '" border="0" width="100%" cellspacing="0" cellpadding="2"><tbody><tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" data-paymentcode="PAYPAL" onclick="selectRowEffectCustomWcp(this)">';
@@ -1112,7 +1106,6 @@ class wirecard_checkout_page {
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SOFORTUEBERWEISUNG', 'False', '6', '213', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX', 'False', '6', '214', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC', 'False', '6', '216', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
-        xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK', 'False', '6', '218', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL', 'False', '6', '220', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG', 'False', '6', '221', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
         xtc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_key, configuration_value, configuration_group_id, sort_order, set_function, date_added) values ('MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD', 'False', '6', '222', 'xtc_cfg_select_option(array(\'False\', \'True\'), ', now())");
@@ -1264,7 +1257,6 @@ class wirecard_checkout_page {
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_TRUSTLY',
 					'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PBX',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PSC',
-                    'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_QUICK',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_PAYPAL',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_EPAY_BG',
                     'MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_SEPA_DD',
