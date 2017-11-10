@@ -285,7 +285,6 @@ debug_msg("-- script reached eof - executed without errors --\n");
 //copy of send_orders.php
 function create_status_mail_for_order($oID, $language)
 {
-    debug_msg("preparing the mail" . $language);
 	$insert_id = (int)$oID;
    
     require_once (DIR_FS_INC.'xtc_get_order_data.inc.php');
