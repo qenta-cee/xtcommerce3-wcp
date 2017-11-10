@@ -50,9 +50,6 @@ if(isset($_POST)) {
         }
     }
     else {
-		chdir('callback/wirecard/');
-        include ('checkout_page_confirm.php');
-
         $q = xtc_db_query('SELECT RESPONSEDATA FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "'.xtc_db_input($trid).'" LIMIT 1;');
 		$dbEntry = xtc_db_fetch_array($q);
 
