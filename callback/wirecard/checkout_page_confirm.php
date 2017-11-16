@@ -42,55 +42,64 @@ if ($_POST)
     include_once ('includes/application_top.php');
     include_once ('includes/modules/payment/wirecard_checkout_page.php');
 
-    $languageArray = Array('language' => htmlentities($_POST['confirmLanguage']),
-        'language_id' => htmlentities($_POST['confirmLanguageId']));
+    $languageArray = Array('language_id' => htmlentities($_POST['confirmLanguageId']));
+    switch ($_POST['language']) {
+        case "de":
+            $languageArray['language'] = "german";
+            break;
+        case "en":
+            $languageArray['language'] = "english";
+            break;
+        default:
+            $languageArray['language'] = "english";
+    }
 
     debug_msg("Finished Initialization of the confirm_callback.php script" );
     debug_msg("Received this POST: " . print_r($_POST, 1));
-	
-	if(get_magic_quotes_gpc() || get_magic_quotes_runtime())
-	{
-		$this->debug_log('magic_quotes enabled. Stripping slashes for consumer return.');
-		foreach($_POST AS $key=>$value)
-		{
-			$responseArray[$key] = stripslashes($value);
-		}
-	}
-	else
-	{
-		$responseArray = $_POST;
-	}
-	
-	 $orderDesc            = isset($responseArray['orderDesc']) ? $responseArray['orderDesc'] : '';
-        // orderNumber is only given if paymentState=success
-        $orderNumber          = isset($responseArray['orderNumber']) ? $responseArray['orderNumber'] : 0;
-        $paymentState         = isset($responseArray['paymentState']) ? $responseArray['paymentState'] : 'FAILURE';
-        $paysys               = isset($responseArray['paymentType']) ? $responseArray['paymentType'] : '';
-        $brand                = isset($responseArray['financialInstitution']) ? $responseArray['financialInstitution'] : '';
-        $message              = '';
-        $everythingOk         = false;
 
-	$q = xtc_db_query("UPDATE " . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . " SET " .
-            "ORDERNUMBER=" . xtc_db_input($orderNumber) . ", " .
-            "ORDERDESCRIPTION='" . xtc_db_input($orderDesc) . "', " .
-            "STATE='" . xtc_db_input($paymentState) . "', " .
-            "MESSAGE='" . xtc_db_input($message) . "', " .
-            "GATEWAY_REF_NUM='" . xtc_db_input($gatewayRefNum) . "', " .
-            "RESPONSEDATA='" . xtc_db_input(json_encode($responseArray)) . "', " .
-            (xtc_not_null($paysys) ? "PAYSYS='" . xtc_db_input($paysys) . "', " : "") . // overwrite only if given in response
-            "BRAND='" . xtc_db_input($brand) . "' " .
-            "WHERE TRID='" . xtc_db_input($responseArray['trid']) . "'");
-        
+    if(get_magic_quotes_gpc() || get_magic_quotes_runtime())
+    {
+        $this->debug_log('magic_quotes enabled. Stripping slashes for consumer return.');
+        foreach($_POST AS $key=>$value)
+        {
+            $responseArray[$key] = stripslashes($value);
+        }
+    }
+    else
+    {
+        $responseArray = $_POST;
+    }
+
+    $orderDesc            = isset($responseArray['orderDesc']) ? $responseArray['orderDesc'] : '';
+    // orderNumber is only given if paymentState=success
+    $orderNumber          = isset($responseArray['orderNumber']) ? $responseArray['orderNumber'] : 0;
+    $paymentState         = isset($responseArray['paymentState']) ? $responseArray['paymentState'] : 'FAILURE';
+    $paysys               = isset($responseArray['paymentType']) ? $responseArray['paymentType'] : '';
+    $brand                = isset($responseArray['financialInstitution']) ? $responseArray['financialInstitution'] : '';
+    $message              = '';
+    $everythingOk         = false;
+
+    $q = xtc_db_query("UPDATE " . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . " SET " .
+        "ORDERNUMBER=" . xtc_db_input($orderNumber) . ", " .
+        "ORDERDESCRIPTION='" . xtc_db_input($orderDesc) . "', " .
+        "STATE='" . xtc_db_input($paymentState) . "', " .
+        "MESSAGE='" . xtc_db_input($message) . "', " .
+        "GATEWAY_REF_NUM='" . xtc_db_input($gatewayRefNum) . "', " .
+        "RESPONSEDATA='" . xtc_db_input(json_encode($responseArray)) . "', " .
+        (xtc_not_null($paysys) ? "PAYSYS='" . xtc_db_input($paysys) . "', " : "") . // overwrite only if given in response
+        "BRAND='" . xtc_db_input($brand) . "' " .
+        "WHERE TRID='" . xtc_db_input($responseArray['trid']) . "'");
+
     if(!$q)
     {
         $returnMessage = 'Transactiontable update failed.';
     }
     debug_msg('Payment Table updated='.$q);
-	
-	$q = xtc_db_query('SELECT ORDERID FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "' . xtc_db_input($responseArray['trid']) . '" LIMIT 1;');
-	$dbEntry = xtc_db_fetch_array($q);
-	$order_id = $dbEntry['ORDERID'];
-	
+
+    $q = xtc_db_query('SELECT ORDERID FROM ' . MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_TRANSACTION_TABLE . ' WHERE trid = "' . xtc_db_input($responseArray['trid']) . '" LIMIT 1;');
+    $dbEntry = xtc_db_fetch_array($q);
+    $order_id = $dbEntry['ORDERID'];
+
     if(isset($_POST['responseFingerprintOrder']) && isset($_POST['responseFingerprint']))
     {
         $responseFingerprintOrder = explode(',', $_POST['responseFingerprintOrder']);
@@ -136,15 +145,15 @@ if ($_POST)
             switch ($_POST['paymentState'])
             {
                 case 'SUCCESS':
-                    $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_ID;
+                    $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_SUCCESS;
                     break;
 
                 case 'PENDING':
-                    $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_PENDING_ID;
+                    $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_PENDING;
                     break;
 
                 default:
-                    $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
+                    $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
             }
             debug_msg('Callback Process');
             $q = xtc_db_query('UPDATE ' . TABLE_ORDERS . ' SET orders_status=\'' . xtc_db_input($order_status) . '\' WHERE orders_id=\'' . $order_id.'\';');
@@ -164,12 +173,12 @@ if ($_POST)
                 $avsStatus = '';
             }
             debug_msg($avsStatus);
-							
-			//add response to order comments, due to the problem that the backend order details page cannot be modified
-			$tmpStr = "$avsStatus\n";
-			foreach($_POST as $k=>$v) {
-				$tmpStr .= "$k: $v\n";
-			}
+
+            //add response to order comments, due to the problem that the backend order details page cannot be modified
+            $tmpStr = "$avsStatus\n";
+            foreach($_POST as $k=>$v) {
+                $tmpStr .= "$k: $v\n";
+            }
 
             $q = xtc_db_query('INSERT INTO '.TABLE_ORDERS_STATUS_HISTORY.'
              (orders_id,  orders_status_id, date_added, customer_notified, comments)
@@ -181,7 +190,7 @@ if ($_POST)
             }
             debug_msg('Order-Status-History updated='.$q);
 
-            if(MODULE_PAYMENT_WCP_ORDER_STATUS_SUCCESS === $order_status) {		
+            if (MODULE_PAYMENT_WCP_ORDER_STATUS_SUCCESS === $order_status) {
                 create_status_mail_for_order($order_id, $languageArray);
             }
         }
@@ -205,20 +214,20 @@ if ($_POST)
             $order_status = MODULE_PAYMENT_WCP_ORDER_STATUS_FAILED;
 
             debug_msg('Callback Process');
-             $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
+            $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
                SET orders_status='" . xtc_db_input($order_status) . "'
                WHERE orders_id='" . (int)$order_id . "'");
             if(!$q)
             {
                 $returnMessage = 'Orderstatus update failed.';
             }
-										
-			//add response to order comments, due to the problem that the backend order details page cannot be modified
-			$tmpStr = "";
-			foreach($_POST as $k=>$v) {
-				$tmpStr .= "$k: $v\n";
-			}
-			
+
+            //add response to order comments, due to the problem that the backend order details page cannot be modified
+            $tmpStr = "";
+            foreach($_POST as $k=>$v) {
+                $tmpStr .= "$k: $v\n";
+            }
+
             debug_msg('Order-Status updated='.$q);
             $q = xtc_db_query("INSERT INTO ".TABLE_ORDERS_STATUS_HISTORY."
                (orders_id,  orders_status_id, date_added, customer_notified, comments)
@@ -243,7 +252,7 @@ if ($_POST)
             debug_msg('Order Failed: '.$message);
             $order_status = MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_ORDER_STATUS_FAILED;
             debug_msg('Callback Process');
-             $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
+            $q = xtc_db_query("UPDATE ".TABLE_ORDERS."
                SET orders_status='" . (int)$order_status . "'
                WHERE orders_id='" . (int)$order_id . "'");
             if(!$q)
@@ -285,8 +294,9 @@ debug_msg("-- script reached eof - executed without errors --\n");
 //copy of send_orders.php
 function create_status_mail_for_order($oID, $language)
 {
-	$insert_id = (int)$oID;
-   
+    debug_msg("preparing the mail" . $language);
+    $insert_id = (int)$oID;
+
     require_once (DIR_FS_INC.'xtc_get_order_data.inc.php');
     require_once (DIR_FS_INC.'xtc_get_attributes_model.inc.php');
     require_once (DIR_WS_CLASSES.'order.php');
@@ -295,71 +305,71 @@ function create_status_mail_for_order($oID, $language)
     else
         require_once (DIR_WS_CLASSES . 'Smarty/Smarty.class.php');
 
-	// check if customer is allowed to send this order!
+    // check if customer is allowed to send this order!
     $order_query_check = xtc_db_query("SELECT
   					customers_id
   					FROM ".TABLE_ORDERS."
   					WHERE orders_id='".$insert_id."'");
 
-$order_check = xtc_db_fetch_array($order_query_check);
+    $order_check = xtc_db_fetch_array($order_query_check);
 
-   	$order = new order($insert_id);
+    $order = new order($insert_id);
 
-	$smarty = new Smarty();
-	
-	$smarty->assign('address_label_customer', xtc_address_format($order->customer['format_id'], $order->customer, 1, '', '<br />'));
-	$smarty->assign('address_label_shipping', xtc_address_format($order->delivery['format_id'], $order->delivery, 1, '', '<br />'));
-	if ($_SESSION['credit_covers'] != '1') {
-		$smarty->assign('address_label_payment', xtc_address_format($order->billing['format_id'], $order->billing, 1, '', '<br />'));
-	}
-	$smarty->assign('csID', $order->customer['csID']);
-	
-	$order_total = $order->getTotalData($insert_id); 
-		$smarty->assign('order_data', $order->getOrderData($insert_id));
-		$smarty->assign('order_total', $order_total['data']);
+    $smarty = new Smarty();
 
-	// assign language to template for caching
-	$smarty->assign('language', $language['language']);
-	$smarty->assign('tpl_path', 'templates/'.CURRENT_TEMPLATE.'/');
-	$smarty->assign('logo_path', HTTP_SERVER.DIR_WS_CATALOG.'templates/'.CURRENT_TEMPLATE.'/img/');
-	$smarty->assign('oID', $insert_id);
-	if ($order->info['payment_method'] != '' && $order->info['payment_method'] != 'no_payment') {
-		include (DIR_WS_LANGUAGES.$language['language'].'/modules/payment/'.$order->info['payment_method'].'.php');
-		$payment_method = constant(strtoupper('MODULE_PAYMENT_'.$order->info['payment_method'].'_TEXT_TITLE'));
-	}
-	$smarty->assign('PAYMENT_METHOD', $payment_method);
-	$smarty->assign('DATE', xtc_date_long($order->info['date_purchased']));
+    $smarty->assign('address_label_customer', xtc_address_format($order->customer['format_id'], $order->customer, 1, '', '<br />'));
+    $smarty->assign('address_label_shipping', xtc_address_format($order->delivery['format_id'], $order->delivery, 1, '', '<br />'));
+    if ($_SESSION['credit_covers'] != '1') {
+        $smarty->assign('address_label_payment', xtc_address_format($order->billing['format_id'], $order->billing, 1, '', '<br />'));
+    }
+    $smarty->assign('csID', $order->customer['csID']);
 
-	$smarty->assign('NAME', $order->customer['name']);
-	$smarty->assign('COMMENTS', $order->info['comments']);
-	$smarty->assign('EMAIL', $order->customer['email_address']);
-	$smarty->assign('PHONE',$order->customer['telephone']);
+    $order_total = $order->getTotalData($insert_id);
+    $smarty->assign('order_data', $order->getOrderData($insert_id));
+    $smarty->assign('order_total', $order_total['data']);
+
+    // assign language to template for caching
+    $smarty->assign('language', $language['language']);
+    $smarty->assign('tpl_path', 'templates/'.CURRENT_TEMPLATE.'/');
+    $smarty->assign('logo_path', HTTP_SERVER.DIR_WS_CATALOG.'templates/'.CURRENT_TEMPLATE.'/img/');
+    $smarty->assign('oID', $insert_id);
+    if ($order->info['payment_method'] != '' && $order->info['payment_method'] != 'no_payment') {
+        include (DIR_WS_LANGUAGES.$language['language'].'/modules/payment/'.$order->info['payment_method'].'.php');
+        $payment_method = constant(strtoupper('MODULE_PAYMENT_'.$order->info['payment_method'].'_TEXT_TITLE'));
+    }
+    $smarty->assign('PAYMENT_METHOD', $payment_method);
+    $smarty->assign('DATE', xtc_date_long($order->info['date_purchased']));
+
+    $smarty->assign('NAME', $order->customer['name']);
+    $smarty->assign('COMMENTS', $order->info['comments']);
+    $smarty->assign('EMAIL', $order->customer['email_address']);
+    $smarty->assign('PHONE',$order->customer['telephone']);
 
 
-	// dont allow cache
-	$smarty->caching = false;
+    // dont allow cache
+    $smarty->caching = false;
 
-	$html_mail = $smarty->fetch(CURRENT_TEMPLATE.'/mail/'.$language['language'].'/order_mail.html');
-	$txt_mail = $smarty->fetch(CURRENT_TEMPLATE.'/mail/'.$language['language'].'/order_mail.txt');
+    $html_mail = $smarty->fetch(CURRENT_TEMPLATE.'/mail/'.$language['language'].'/order_mail.html');
+    $txt_mail = $smarty->fetch(CURRENT_TEMPLATE.'/mail/'.$language['language'].'/order_mail.txt');
 
-	// create subject
-	$order_subject = str_replace('{$nr}', $insert_id, EMAIL_BILLING_SUBJECT_ORDER);
-	$order_subject = str_replace('{$date}', strftime(DATE_FORMAT_LONG), $order_subject);
-	$order_subject = str_replace('{$lastname}', $order->customer['lastname'], $order_subject);
-	$order_subject = str_replace('{$firstname}', $order->customer['firstname'], $order_subject);
+    // create subject
+    $order_subject = str_replace('{$nr}', $insert_id, EMAIL_BILLING_SUBJECT_ORDER);
+    $order_subject = str_replace('{$date}', strftime(DATE_FORMAT_LONG), $order_subject);
+    $order_subject = str_replace('{$lastname}', $order->customer['lastname'], $order_subject);
+    $order_subject = str_replace('{$firstname}', $order->customer['firstname'], $order_subject);
 
-	// send mail to admin
-	$mailAdmin = xtc_php_mail(EMAIL_BILLING_ADDRESS, EMAIL_BILLING_NAME, EMAIL_BILLING_ADDRESS, STORE_NAME, EMAIL_BILLING_FORWARDING_STRING, $order->customer['email_address'], $order->customer['firstname'], '', '', $order_subject, $html_mail, $txt_mail);
+    // send mail to admin
+    $mailAdmin = xtc_php_mail(EMAIL_BILLING_ADDRESS, EMAIL_BILLING_NAME, EMAIL_BILLING_ADDRESS, STORE_NAME, EMAIL_BILLING_FORWARDING_STRING, $order->customer['email_address'], $order->customer['firstname'], '', '', $order_subject, $html_mail, $txt_mail);
 
-	// send mail to customer
-	$mailCustomer = xtc_php_mail(EMAIL_BILLING_ADDRESS, EMAIL_BILLING_NAME, $order->customer['email_address'], $order->customer['firstname'].' '.$order->customer['lastname'], '', EMAIL_BILLING_REPLY_ADDRESS, EMAIL_BILLING_REPLY_ADDRESS_NAME, '', '', $order_subject, $html_mail, $txt_mail);
+    // send mail to customer
+    $mailCustomer = xtc_php_mail(EMAIL_BILLING_ADDRESS, EMAIL_BILLING_NAME, $order->customer['email_address'], $order->customer['firstname'].' '.$order->customer['lastname'], '', EMAIL_BILLING_REPLY_ADDRESS, EMAIL_BILLING_REPLY_ADDRESS_NAME, '', '', $order_subject, $html_mail, $txt_mail);
 
-	if (AFTERBUY_ACTIVATED == 'true') {
-		require_once (DIR_WS_CLASSES.'afterbuy.php');
-		$aBUY = new xtc_afterbuy_functions($insert_id);
-		if ($aBUY->order_send())
-			$aBUY->process_order();
-	}
+    if (AFTERBUY_ACTIVATED == 'true') {
+        require_once (DIR_WS_CLASSES.'afterbuy.php');
+        $aBUY = new xtc_afterbuy_functions($insert_id);
+        if ($aBUY->order_send())
+            $aBUY->process_order();
+    }
 }
 
 function _wirecardCheckoutPageConfirmResponse($message = null)
