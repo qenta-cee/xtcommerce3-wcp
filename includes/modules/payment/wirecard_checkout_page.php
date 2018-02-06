@@ -462,24 +462,27 @@ class wirecard_checkout_page {
 
     /// @brief decorate process button
     function process_button() {
-		if(isset($_POST["wirecard_checkout_page"])) {
-			$_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
-		}
-	    $config = $this->get_plugin_config();
-	    $customer_id = $config['customerId'];
+        if ((MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True') ||
+            (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True')) {
+            if (isset($_POST["wirecard_checkout_page"])) {
+                $_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
+            }
+            $config = $this->get_plugin_config();
+            $customer_id = $config['customerId'];
 
-	    if( isset( $_SESSION['wcp-consumerDeviceId'] ) ) {
-		    $consumerDeviceId = $_SESSION['wcp-consumerDeviceId'];
-	    } else {
-		    $timestamp = microtime();
-		    $consumerDeviceId = md5( $customer_id . "_" . $timestamp );
-		    $_SESSION['wcp-consumerDeviceId'] = $consumerDeviceId;
-	    }
-	    $ratepay = '<script language="JavaScript">var di = {t:"' . $consumerDeviceId . '",v:"WDWL",l:"Checkout"};</script>';
-	    $ratepay .= '<script type="text/javascript" src="//d.ratepay.com/' . $consumerDeviceId . '/di.js"></script>';
-	    $ratepay .= '<noscript><link rel="stylesheet" type="text/css" href="//d.ratepay.com/di.css?t=' . $consumerDeviceId . '&v=WDWL&l=Checkout"></noscript>';
-	    $ratepay .= '<object type="application/x-shockwave-flash" data="//d.ratepay.com/WDWL/c.swf" width="0" height="0"><param name="movie" value="//d.ratepay.com/WDWL/c.swf" /><param name="flashvars" value="t=' . $consumerDeviceId . '&v=WDWL"/><param name="AllowScriptAccess" value="always"/></object>';
-	    echo $ratepay;
+            if (isset($_SESSION['wcp-consumerDeviceId'])) {
+                $consumerDeviceId = $_SESSION['wcp-consumerDeviceId'];
+            } else {
+                $timestamp = microtime();
+                $consumerDeviceId = md5($customer_id . "_" . $timestamp);
+                $_SESSION['wcp-consumerDeviceId'] = $consumerDeviceId;
+            }
+            $ratepay = '<script language="JavaScript">var di = {t:"' . $consumerDeviceId . '",v:"WDWL",l:"Checkout"};</script>';
+            $ratepay .= '<script type="text/javascript" src="//d.ratepay.com/' . $consumerDeviceId . '/di.js"></script>';
+            $ratepay .= '<noscript><link rel="stylesheet" type="text/css" href="//d.ratepay.com/di.css?t=' . $consumerDeviceId . '&v=WDWL&l=Checkout"></noscript>';
+            $ratepay .= '<object type="application/x-shockwave-flash" data="//d.ratepay.com/WDWL/c.swf" width="0" height="0"><param name="movie" value="//d.ratepay.com/WDWL/c.swf" /><param name="flashvars" value="t=' . $consumerDeviceId . '&v=WDWL"/><param name="AllowScriptAccess" value="always"/></object>';
+            echo $ratepay;
+        }
 	}
 
     /// @brief unset temp order id from session
