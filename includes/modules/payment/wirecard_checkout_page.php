@@ -462,8 +462,8 @@ class wirecard_checkout_page {
 
     /// @brief decorate process button
     function process_button() {
-        if ((MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True') ||
-            (MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True')) {
+        if ((strtolower(MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INVOICE_PROVIDER) == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INVOICE == 'True') ||
+            strtolower((MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_INSTALLMENT_PROVIDER) == 'ratepay' && MODULE_PAYMENT_WIRECARD_CHECKOUT_PAGE_PAYSYS_INSTALLMENT == 'True')) {
             if (isset($_POST["wirecard_checkout_page"])) {
                 $_SESSION['wirecard_checkout_page']['payMethod'] = $_POST["wirecard_checkout_page"];
             }
